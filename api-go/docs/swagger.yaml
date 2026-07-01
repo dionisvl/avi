@@ -1,0 +1,1810 @@
+basePath: /api/v1
+definitions:
+  github_com_dionisvl_classifieds_api-go_internal_api.PaginationResponse:
+    properties:
+      page:
+        type: integer
+      per_page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails:
+    properties:
+      code:
+        type: string
+      detail:
+        type: string
+      status:
+        type: integer
+      title:
+        type: string
+    type: object
+  github_com_dionisvl_classifieds_api-go_internal_api_item.CategoryResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
+  github_com_dionisvl_classifieds_api-go_internal_api_item.CityResponse:
+    properties:
+      geoname_id:
+        type: integer
+      id:
+        type: string
+      is_active:
+        type: boolean
+      names:
+        additionalProperties:
+          type: string
+        type: object
+      population:
+        type: integer
+      slug:
+        type: string
+    type: object
+  github_com_dionisvl_classifieds_api-go_internal_api_item.ItemResponse:
+    properties:
+      category:
+        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.CategoryResponse'
+      category_id:
+        type: string
+      city:
+        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.CityResponse'
+      condition:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      is_favorited:
+        type: boolean
+      photos:
+        items:
+          $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.PhotoResponse'
+        type: array
+      price:
+        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.PriceResponse'
+      seller:
+        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.SellerResponse'
+      slug:
+        type: string
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      thumbnail:
+        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.PhotoResponse'
+      title:
+        type: string
+    type: object
+  github_com_dionisvl_classifieds_api-go_internal_api_item.PhotoResponse:
+    properties:
+      id:
+        type: string
+      thumbnail_url:
+        type: string
+      url:
+        type: string
+    type: object
+  github_com_dionisvl_classifieds_api-go_internal_api_item.PriceResponse:
+    properties:
+      amount:
+        type: integer
+      currency:
+        type: string
+    type: object
+  github_com_dionisvl_classifieds_api-go_internal_api_item.SellerResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  github_com_dionisvl_classifieds_api-go_internal_model.UserPreferences:
+    properties:
+      category_id:
+        description: UUID string
+        type: string
+      city_id:
+        description: UUID string
+        type: string
+      condition:
+        type: string
+      price_max:
+        type: integer
+      price_min:
+        type: integer
+      search:
+        type: string
+    type: object
+  internal_api_auth.ChangePasswordRequest:
+    properties:
+      current_password:
+        type: string
+      new_password:
+        minLength: 8
+        type: string
+    required:
+    - current_password
+    - new_password
+    type: object
+  internal_api_auth.LoginRequest:
+    properties:
+      email:
+        example: test@example.com
+        type: string
+      password:
+        example: password123
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  internal_api_auth.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+  internal_api_auth.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  internal_api_auth.RefreshResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+  internal_api_auth.RegisterRequest:
+    properties:
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      locale:
+        enum:
+        - ru
+        - en
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  internal_api_auth.RegisterResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+    type: object
+  internal_api_auth.ResendVerificationRequest:
+    properties:
+      email:
+        type: string
+      locale:
+        enum:
+        - ru
+        - en
+        type: string
+    required:
+    - email
+    type: object
+  internal_api_auth.ResetPasswordConfirmReq:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+    required:
+    - code
+    - email
+    type: object
+  internal_api_auth.ResetPasswordRequestReq:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  internal_api_auth.ResetPasswordSetReq:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+      new_password:
+        minLength: 8
+        type: string
+    required:
+    - code
+    - email
+    - new_password
+    type: object
+  internal_api_auth.VerifyEmailRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+    required:
+    - code
+    - email
+    type: object
+  internal_api_categories.CategoryResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      names:
+        additionalProperties:
+          type: string
+        type: object
+      parent_id:
+        type: string
+      slug:
+        type: string
+      sort_order:
+        type: integer
+    type: object
+  internal_api_categories.ListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/internal_api_categories.CategoryResponse'
+        type: array
+    type: object
+  internal_api_categories.SingleResponse:
+    properties:
+      data:
+        $ref: '#/definitions/internal_api_categories.CategoryResponse'
+    type: object
+  internal_api_chat.ConversationResponse:
+    properties:
+      id:
+        type: string
+      last_message_at:
+        type: string
+      last_message_has_photo:
+        type: boolean
+      last_message_preview:
+        type: string
+      peer_avatar_url:
+        type: string
+      peer_id:
+        type: string
+      peer_name:
+        type: string
+      peer_type:
+        type: string
+      unread_count:
+        type: integer
+    type: object
+  internal_api_chat.MessageResponse:
+    properties:
+      attachment_mime:
+        type: string
+      attachment_size:
+        type: integer
+      attachment_url:
+        type: string
+      body:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      is_mine:
+        type: boolean
+      sender_id:
+        type: string
+      status:
+        description: '"sent" | "read"; present only for outgoing messages'
+        type: string
+    type: object
+  internal_api_chat.OpenConversationRequest:
+    properties:
+      peer_user_id:
+        type: string
+    required:
+    - peer_user_id
+    type: object
+  internal_api_city.ListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.CityResponse'
+        type: array
+    type: object
+  internal_api_contact.CreateRequest:
+    properties:
+      email:
+        maxLength: 254
+        type: string
+      message:
+        maxLength: 4000
+        minLength: 10
+        type: string
+      name:
+        maxLength: 120
+        minLength: 2
+        type: string
+      subject:
+        maxLength: 160
+        type: string
+    required:
+    - email
+    - message
+    - name
+    type: object
+  internal_api_contact.CreateResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  internal_api_contact.SingleResponse:
+    properties:
+      data:
+        $ref: '#/definitions/internal_api_contact.CreateResponse'
+    type: object
+  internal_api_favorite.AddRequest:
+    properties:
+      item_id:
+        type: string
+    required:
+    - item_id
+    type: object
+  internal_api_favorite.FavoriteItemResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      item:
+        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.ItemResponse'
+      item_id:
+        type: string
+    type: object
+  internal_api_favorite.FavoritesListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/internal_api_favorite.FavoriteItemResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.PaginationResponse'
+    type: object
+  internal_api_health.HealthResponse:
+    description: Health check response
+    properties:
+      status:
+        type: string
+      version:
+        type: string
+    type: object
+  internal_api_item.CategoryResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
+  internal_api_item.CityResponse:
+    properties:
+      geoname_id:
+        type: integer
+      id:
+        type: string
+      is_active:
+        type: boolean
+      names:
+        additionalProperties:
+          type: string
+        type: object
+      population:
+        type: integer
+      slug:
+        type: string
+    type: object
+  internal_api_item.CreateItemRequest:
+    properties:
+      category_id:
+        type: string
+      city_uuid:
+        type: string
+      condition:
+        enum:
+        - new
+        - used
+        type: string
+      description:
+        maxLength: 2000
+        type: string
+      geoname_id:
+        minimum: 1
+        type: integer
+      photo_ids:
+        items:
+          type: string
+        maxItems: 10
+        type: array
+      price:
+        $ref: '#/definitions/internal_api_item.PriceRequest'
+      tags:
+        items:
+          type: string
+        maxItems: 20
+        type: array
+      thumbnail_id:
+        type: string
+      title:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - category_id
+    - title
+    type: object
+  internal_api_item.ItemListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/internal_api_item.ItemResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.PaginationResponse'
+    type: object
+  internal_api_item.ItemResponse:
+    properties:
+      category:
+        $ref: '#/definitions/internal_api_item.CategoryResponse'
+      category_id:
+        type: string
+      city:
+        $ref: '#/definitions/internal_api_item.CityResponse'
+      condition:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      is_favorited:
+        type: boolean
+      photos:
+        items:
+          $ref: '#/definitions/internal_api_item.PhotoResponse'
+        type: array
+      price:
+        $ref: '#/definitions/internal_api_item.PriceResponse'
+      seller:
+        $ref: '#/definitions/internal_api_item.SellerResponse'
+      slug:
+        type: string
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      thumbnail:
+        $ref: '#/definitions/internal_api_item.PhotoResponse'
+      title:
+        type: string
+    type: object
+  internal_api_item.ItemSingleResponse:
+    properties:
+      data:
+        $ref: '#/definitions/internal_api_item.ItemResponse'
+    type: object
+  internal_api_item.PhotoResponse:
+    properties:
+      id:
+        type: string
+      thumbnail_url:
+        type: string
+      url:
+        type: string
+    type: object
+  internal_api_item.PriceRequest:
+    properties:
+      amount:
+        minimum: 0
+        type: integer
+      currency:
+        type: string
+    required:
+    - currency
+    type: object
+  internal_api_item.PriceResponse:
+    properties:
+      amount:
+        type: integer
+      currency:
+        type: string
+    type: object
+  internal_api_item.SellerResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  internal_api_item.UpdateItemRequest:
+    properties:
+      category_id:
+        type: string
+      city_uuid:
+        type: string
+      condition:
+        enum:
+        - new
+        - used
+        type: string
+      description:
+        maxLength: 2000
+        type: string
+      geoname_id:
+        minimum: 1
+        type: integer
+      photo_ids:
+        items:
+          type: string
+        maxItems: 10
+        type: array
+      price:
+        $ref: '#/definitions/internal_api_item.PriceRequest'
+      status:
+        enum:
+        - published
+        - draft
+        - archived
+        - sold
+        type: string
+      tags:
+        items:
+          type: string
+        maxItems: 20
+        type: array
+      thumbnail_id:
+        type: string
+      title:
+        maxLength: 100
+        minLength: 1
+        type: string
+    type: object
+  internal_api_payment.AmountResponse:
+    properties:
+      currency:
+        type: string
+      value:
+        type: string
+    type: object
+  internal_api_payment.CreatePaymentRequest:
+    properties:
+      purpose:
+        type: string
+      return_url:
+        type: string
+      subject_id:
+        type: string
+    required:
+    - purpose
+    - subject_id
+    type: object
+  internal_api_payment.CreatePaymentResponse:
+    properties:
+      amount:
+        $ref: '#/definitions/internal_api_payment.AmountResponse'
+      confirmation_url:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+    type: object
+  internal_api_payment.WebhookResponse:
+    properties:
+      processed:
+        type: boolean
+    type: object
+  internal_api_upload.UploadData:
+    properties:
+      id:
+        type: string
+      thumbnail_url:
+        type: string
+      url:
+        type: string
+    type: object
+  internal_api_upload.UploadResponse:
+    properties:
+      data:
+        $ref: '#/definitions/internal_api_upload.UploadData'
+    type: object
+  internal_api_user.DeleteMeRequest:
+    properties:
+      password:
+        type: string
+    required:
+    - password
+    type: object
+  internal_api_user.MeResponse:
+    properties:
+      avatar_url:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      has_profile:
+        type: boolean
+      id:
+        type: string
+      name:
+        type: string
+      preferences:
+        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_model.UserPreferences'
+      roles:
+        items:
+          type: string
+        type: array
+    type: object
+  internal_api_user.PreferencesRequest:
+    properties:
+      category_id:
+        type: string
+      city_id:
+        type: string
+      condition:
+        enum:
+        - new
+        - used
+        type: string
+      price_max:
+        minimum: 0
+        type: integer
+      price_min:
+        minimum: 0
+        type: integer
+      search:
+        maxLength: 100
+        type: string
+    type: object
+  internal_api_user.UpdateMeRequest:
+    properties:
+      name:
+        maxLength: 100
+        type: string
+      preferences:
+        $ref: '#/definitions/internal_api_user.PreferencesRequest'
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: |-
+    Demo classifieds marketplace API (C2C listings: items, categories, favorites, chat, listing promotion).
+    Not affiliated with Avito, OLX, or any other classifieds platform.
+  title: Classifieds Marketplace API
+  version: "1.0"
+paths:
+  /api/v1/auth/change-password:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Current and new password
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_auth.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - auth
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Login credentials
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_auth.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: Login
+      tags:
+      - auth
+  /api/v1/auth/logout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - BearerAuth: []
+      summary: Logout current user from all devices
+      tags:
+      - auth
+  /api/v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Refresh token
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_auth.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_auth.RefreshResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: Refresh token
+      tags:
+      - auth
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Registration data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_auth.RegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: Register a new user
+      tags:
+      - auth
+  /api/v1/auth/resend-verification:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Email and optional locale
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_auth.ResendVerificationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: Resend email verification code
+      tags:
+      - auth
+  /api/v1/auth/reset-password/confirm:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Email and code
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_auth.ResetPasswordConfirmReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: Confirm password reset code
+      tags:
+      - auth
+  /api/v1/auth/reset-password/request:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Email
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_auth.ResetPasswordRequestReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: Request password reset
+      tags:
+      - auth
+  /api/v1/auth/reset-password/set:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Email, code and new password
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_auth.ResetPasswordSetReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: Set new password
+      tags:
+      - auth
+  /api/v1/auth/verify-email:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Email and verification code
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_auth.VerifyEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: Verify email
+      tags:
+      - auth
+  /api/v1/categories:
+    get:
+      parameters:
+      - description: Locale (en or ru, default en)
+        enum:
+        - en
+        - ru
+        in: query
+        name: locale
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_categories.ListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: List categories
+      tags:
+      - categories
+  /api/v1/categories/{id}:
+    get:
+      parameters:
+      - description: Category UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Locale (en or ru, default en)
+        enum:
+        - en
+        - ru
+        in: query
+        name: locale
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_categories.SingleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: Get category by ID
+      tags:
+      - categories
+  /api/v1/cities:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_city.ListResponse'
+      summary: List all cities
+      tags:
+      - cities
+  /api/v1/contact-messages:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Contact message
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_contact.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/internal_api_contact.SingleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: Send contact form message
+      tags:
+      - contact-messages
+  /api/v1/items:
+    get:
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 20, max: 100)'
+        in: query
+        name: per_page
+        type: integer
+      - description: Filter by category UUID
+        in: query
+        name: category_id
+        type: string
+      - description: Filter by one or more category UUIDs, comma-separated
+        in: query
+        name: category_ids
+        type: string
+      - description: Filter by city UUID
+        in: query
+        name: city_uuid
+        type: string
+      - description: Filter by GeoNames ID (alternative to city_uuid)
+        in: query
+        name: geoname_id
+        type: integer
+      - description: Filter by condition
+        enum:
+        - new
+        - used
+        in: query
+        name: condition
+        type: string
+      - description: Min price in minor units
+        in: query
+        name: price_min
+        type: integer
+      - description: Max price in minor units
+        in: query
+        name: price_max
+        type: integer
+      - description: Filter by seller UUID
+        in: query
+        name: seller_id
+        type: string
+      - description: Search by title
+        in: query
+        name: search
+        type: string
+      - description: Comma-separated statuses (e.g. published,archived). Non-published
+          only allowed for own seller profile.
+        in: query
+        name: statuses
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_item.ItemListResponse'
+      summary: List items catalog
+      tags:
+      - items
+    post:
+      consumes:
+      - application/json
+      description: Any authenticated user can create an item. Status is immediately
+        'published' (no moderation in MVP). Optional thumbnail_id sets the cover image
+        from any uploaded item photo (independent of photo_ids).
+      parameters:
+      - description: Item data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_item.CreateItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_item.ItemSingleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - BearerAuth: []
+      summary: Create item
+      tags:
+      - items
+  /api/v1/items/{id}:
+    delete:
+      description: Creator or admin can delete.
+      parameters:
+      - description: Item UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - BearerAuth: []
+      summary: Delete item
+      tags:
+      - items
+    get:
+      parameters:
+      - description: Item UUID or slug
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_item.ItemSingleResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: Get item by ID or slug
+      tags:
+      - items
+    patch:
+      consumes:
+      - application/json
+      description: Creator or admin can update. Admins are identified by ROLE_ADMIN
+        in their JWT. The thumbnail_id is independent of photo_ids and can reference
+        any uploaded item photo. To clear thumbnail, send thumbnail_id=null.
+      parameters:
+      - description: Item UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fields to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_item.UpdateItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_item.ItemSingleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - BearerAuth: []
+      summary: Update item
+      tags:
+      - items
+  /api/v1/items/favorites:
+    get:
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 20)'
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_favorite.FavoritesListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - BearerAuth: []
+      summary: List favorites
+      tags:
+      - favorites
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Item ID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_favorite.AddRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - BearerAuth: []
+      summary: Add item to favorites
+      tags:
+      - favorites
+  /api/v1/items/favorites/{item_id}:
+    delete:
+      parameters:
+      - description: Item ID
+        in: path
+        name: item_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - BearerAuth: []
+      summary: Remove item from favorites
+      tags:
+      - favorites
+  /api/v1/payments:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_payment.CreatePaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_payment.CreatePaymentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Create a payment
+      tags:
+      - payments
+  /api/v1/payments/webhooks/yookassa:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_payment.WebhookResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      summary: Webhook for YooKassa payment notifications
+      tags:
+      - payments
+  /api/v1/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Upload target
+        enum:
+        - item
+        - avatar
+        in: formData
+        name: type
+        required: true
+        type: string
+      - description: Optional item UUID when type=item; if omitted, the upload is
+          created without an associated item
+        in: formData
+        name: item_id
+        type: string
+      - description: Image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_upload.UploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - BearerAuth: []
+      summary: Upload a file
+      tags:
+      - upload
+  /api/v1/user/me:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Current password confirmation
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_user.DeleteMeRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - BearerAuth: []
+      summary: Delete current user account
+      tags:
+      - user
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_user.MeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - BearerAuth: []
+      summary: Get current user info
+      tags:
+      - user
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Profile data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_user.UpdateMeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_user.MeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+      security:
+      - BearerAuth: []
+      summary: Update current user profile
+      tags:
+      - user
+  /chat/conversations:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_api_chat.ConversationResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List conversations for authenticated user
+      tags:
+      - chat
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_chat.OpenConversationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_chat.ConversationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Open or get a conversation with a user
+      tags:
+      - chat
+  /chat/conversations/{id}/messages:
+    get:
+      parameters:
+      - description: Conversation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Message created_at for keyset pagination
+        in: query
+        name: before
+        type: string
+      - description: Limit (default 50, max 100)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_api_chat.MessageResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List messages in a conversation
+      tags:
+      - chat
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Conversation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Message body
+        in: formData
+        name: body
+        type: string
+      - description: Attachment file
+        in: formData
+        name: file
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_chat.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Send a message (text and/or attachment)
+      tags:
+      - chat
+  /chat/conversations/{id}/read:
+    post:
+      parameters:
+      - description: Conversation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Mark conversation as read
+      tags:
+      - chat
+  /chat/conversations/{id}/ws:
+    get:
+      parameters:
+      - description: Conversation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Access token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "101":
+          description: Switching Protocols
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: WebSocket connection for real-time chat
+      tags:
+      - chat
+  /chat/unread-total:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get total count of conversations with unread messages
+      tags:
+      - chat
+  /health:
+    get:
+      description: Get API health status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_health.HealthResponse'
+      summary: Health check
+      tags:
+      - health
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

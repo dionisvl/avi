@@ -1,0 +1,9 @@
+dist/
+public/env.js
+dist/env.js
+node_modules/
+playwright-report/
+test-results/
+tests/.auth.json
+tests/.auth.*
+tests/_test_pixel.png

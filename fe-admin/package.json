@@ -1,0 +1,28 @@
+{
+  "name": "fe-admin",
+  "version": "1.0.0",
+  "description": "Admin panel frontend for a C2C classifieds demo",
+  "main": "index.js",
+  "scripts": {
+    "build": "vite build",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@tailwindcss/vite": "^4.2.2",
+    "tailwindcss": "^4.2.2",
+    "vite": "^8.0.8"
+  },
+  "dependencies": {
+    "alpinejs": "^3.15.11",
+    "filepond": "^4.32.12",
+    "tabulator-tables": "^6.4.0"
+  }
+}

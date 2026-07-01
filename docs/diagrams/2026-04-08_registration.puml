@@ -1,0 +1,60 @@
+@startuml Registration and Email Verification Flow
+actor User
+participant Frontend
+participant "Backend API" as BackendAPI
+participant "Email Service" as EmailService
+participant Database
+
+User -> Frontend: Click "Create Account"
+Frontend -> Frontend: Show registration form
+
+User -> Frontend: Enter email + password
+Frontend -> Frontend: Validate inputs
+
+User -> Frontend: Click "Register"
+Frontend -> BackendAPI: POST /api/v1/auth/register\n{email, password, roles: ["ROLE_USER"]}
+
+BackendAPI -> BackendAPI: Hash password
+BackendAPI -> BackendAPI: Generate 6-digit code
+BackendAPI -> Database: Create user\n(IsEmailVerified=false,\nEmailVerifyCode=code)
+
+Database -> BackendAPI: User created
+
+BackendAPI -> EmailService: Send verification code\nto user email
+EmailService -> EmailService: Generate email with code
+EmailService -> User: Email arrives\nwith code (e.g., 219781)
+
+BackendAPI -> Frontend: 201 Created\n{id, email}
+
+Frontend -> Frontend: Show success message
+Frontend -> Frontend: Navigate to login
+
+User -> Frontend: Click link in email\nor navigate manually\nto verification page
+
+Frontend -> Frontend: Show verify email form\nwith email pre-filled
+Frontend -> Frontend: Input focus on code field
+
+User -> Frontend: Enter verification code\n(219781)
+
+Frontend -> BackendAPI: POST /api/v1/auth/verify-email\n{email, code}
+
+BackendAPI -> Database: Get user by email
+
+Database -> BackendAPI: User data
+
+BackendAPI -> BackendAPI: Validate code matches
+
+alt Code is valid
+    BackendAPI -> Database: MarkEmailVerified(user_id)
+    Database -> BackendAPI: OK
+    BackendAPI -> Frontend: 200 OK\n{message: "Email verified successfully"}
+    Frontend -> Frontend: Show success message
+    Frontend -> Frontend: Navigate to login\nwith email pre-filled
+    Frontend -> User: Prompt user to sign in\nwith verified account
+else Code is invalid or expired
+    BackendAPI -> Frontend: 400 Bad Request\n{error: "Invalid verification code"}
+    Frontend -> Frontend: Show error message
+    Frontend -> User: Prompt to request new code\nor contact support
+end
+
+@enduml

@@ -1,0 +1,122 @@
+services:
+  traefik:
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--ping=true"
+      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /run/user/${DOCKER_UID:-1000}/docker.sock:/var/run/docker.sock:ro
+    labels:
+      # HTTP to HTTPS redirect middleware (global)
+      - "traefik.http.middlewares.redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-https.redirectscheme.permanent=true"
+
+  api:
+    build:
+      context: ./api-go
+      dockerfile: Dockerfile
+      args:
+        APP_VERSION: ${APP_VERSION:-1.0.0}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.api.loadbalancer.server.port=8080"
+      # HTTP router
+      - "traefik.http.routers.api-http.entrypoints=web"
+      - "traefik.http.routers.api-http.rule=Host(`${API_DOMAIN}`)"
+      - "traefik.http.routers.api-http.middlewares=api-redirect-https"
+      - "traefik.http.middlewares.api-redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.api-redirect-https.redirectscheme.permanent=true"
+      # HTTPS router
+      - "traefik.http.routers.api-secure.entrypoints=websecure"
+      - "traefik.http.routers.api-secure.rule=Host(`${API_DOMAIN}`)"
+      - "traefik.http.routers.api-secure.tls.certresolver=myresolver"
+
+  fe-admin:
+    build:
+      context: ./fe-admin
+      dockerfile: Dockerfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.fe-admin.loadbalancer.server.port=80"
+      # HTTP router
+      - "traefik.http.routers.fe-admin-http.entrypoints=web"
+      - "traefik.http.routers.fe-admin-http.rule=Host(`${FRONTEND_ADMIN_DOMAIN}`)"
+      - "traefik.http.routers.fe-admin-http.middlewares=fe-admin-redirect-https"
+      - "traefik.http.middlewares.fe-admin-redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.fe-admin-redirect-https.redirectscheme.permanent=true"
+      # HTTPS router
+      - "traefik.http.routers.fe-admin-secure.entrypoints=websecure"
+      - "traefik.http.routers.fe-admin-secure.rule=Host(`${FRONTEND_ADMIN_DOMAIN}`)"
+      - "traefik.http.routers.fe-admin-secure.tls.certresolver=myresolver"
+
+  db:
+    restart: unless-stopped
+
+  postgres-backup:
+    image: postgres:18.3-alpine
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backups:/backups
+    entrypoint: >
+      sh -c "while true; do
+        PGPASSWORD=$$POSTGRES_PASSWORD pg_dump -h db -U $$POSTGRES_USER $$POSTGRES_DB |
+        gzip > /backups/backup_$$(date +%Y%m%d_%H%M%S).sql.gz;
+        find /backups -name 'backup_*.sql.gz' -mtime +7 -delete;
+        sleep 86400;
+      done"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-avi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-avi}
+      POSTGRES_DB: ${POSTGRES_DB:-avi}
+    networks:
+      - avi
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  dozzle:
+    environment:
+      - DOZZLE_AUTH_PROVIDER=simple
+    volumes:
+      - /run/user/${DOCKER_UID:-1000}/docker.sock:/var/run/docker.sock:ro
+      - ./Tools/dozzle_users.yml:/data/users.yml:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+      # HTTP router with redirect to HTTPS
+      - "traefik.http.routers.dozzle-http.entrypoints=web"
+      - "traefik.http.routers.dozzle-http.rule=Host(`${LOGS_DOMAIN}`)"
+      - "traefik.http.routers.dozzle-http.middlewares=dozzle-redirect-https"
+      - "traefik.http.middlewares.dozzle-redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.dozzle-redirect-https.redirectscheme.permanent=true"
+      # HTTPS router (closed behind Traefik HTTP basic auth)
+      - "traefik.http.routers.dozzle-secure.entrypoints=websecure"
+      - "traefik.http.routers.dozzle-secure.rule=Host(`${LOGS_DOMAIN}`)"
+      - "traefik.http.routers.dozzle-secure.tls.certresolver=myresolver"
+      - "traefik.http.routers.dozzle-secure.middlewares=dozzle-auth"
+      - "traefik.http.middlewares.dozzle-auth.basicauth.users=${HTTP_BASIC_AUTH_HASH}"
+
+volumes:
+  letsencrypt:
+  go_cache:

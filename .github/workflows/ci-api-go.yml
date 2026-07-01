@@ -1,0 +1,146 @@
+name: CI / api-go
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "api-go/**"
+
+jobs:
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api-go
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: api-go/go.mod
+
+      - name: Install gofumpt
+        run: go install mvdan.cc/gofumpt@v0.9.0
+
+      - name: Install gci
+        run: go install github.com/daixiang0/gci@v0.14.0
+
+      - name: Check formatting (gofumpt)
+        run: |
+          out=$("$(go env GOPATH)/bin/gofumpt" -l .)
+          if [ -n "$out" ]; then
+            echo "Files need gofumpt formatting:"
+            echo "$out"
+            exit 1
+          fi
+
+      - name: Check imports (gci)
+        run: |
+          find . -name "*.go" -not -path "./vendor/*" -not -path "./docs/*" -print0 \
+            | xargs -0 "$(go env GOPATH)/bin/gci" write -s standard -s default -s "prefix(github.com/dionisvl/avi)"
+          git diff --exit-code
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api-go
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: api-go/go.mod
+
+      - name: Install golangci-lint
+        run: |
+          go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.4
+
+      - name: Run golangci-lint
+        run: |
+          "$(go env GOPATH)/bin/golangci-lint" run --config=.golangci.yml ./...
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api-go
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: api-go/go.mod
+
+      - name: Build
+        run: go build ./...
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18.3-alpine
+        env:
+          POSTGRES_USER: avi
+          POSTGRES_PASSWORD: avi
+          POSTGRES_DB: avi_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U avi -d avi_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      mailpit:
+        image: axllent/mailpit:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
+    env:
+      TEST_DB_DSN: postgres://avi:avi@localhost:5432/avi_test?sslmode=disable
+      SMTP_HOST: localhost
+      SMTP_PORT: 1025
+      SMTP_FROM: test@avi.app
+    defaults:
+      run:
+        working-directory: api-go
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: api-go/go.mod
+
+      - name: Test
+        run: go test ./tests/... -count=1
+
+  swagger:
+    name: Swagger
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api-go
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: api-go/go.mod
+
+      - name: Install swag
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@v1.16.6
+
+      - name: Check generated Swagger files
+        run: |
+          "$(go env GOPATH)/bin/swag" init -g cmd/api/main.go -o docs --outputTypes json,yaml --parseDependency --parseInternal
+          git diff --exit-code -- docs/swagger.json docs/swagger.yaml

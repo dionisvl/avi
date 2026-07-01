@@ -1,0 +1,44 @@
+# Binaries
+/tmp
+/bin
+*.exe
+*.exe~
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Test binaries
+*.test
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+vendor/
+
+# Environment
+.env
+.env.dev
+.env.prod
+.env.local
+
+# Logs
+*.log
+
+# Local object storage for dev uploads
+.uploads/
+
+# Air
+tmp/
+
+# Generated swagger Go package is not used at runtime
+docs/docs.go

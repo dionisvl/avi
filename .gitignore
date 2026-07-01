@@ -1,0 +1,9 @@
+.idea
+.claude
+.env
+
+tools/dozzle_users.yml
+backups/*.sql.gz
+
+
+venv

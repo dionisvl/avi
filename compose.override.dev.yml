@@ -1,0 +1,86 @@
+services:
+  traefik:
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.constraints=Label(`com.docker.compose.oneoff`,`False`)"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--ping=true"
+    ports:
+      - "80:80"
+
+  api:
+    build:
+      target: ${DOCKER_TARGET:-dev}
+    volumes:
+      - ./api-go:/app
+      - go_cache:/root/go/pkg/mod
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.api.loadbalancer.server.port=8080"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.routers.api.rule=Host(`${API_DOMAIN}`)"
+
+  fe-admin:
+    build:
+      context: ./fe-admin
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.fe-admin.loadbalancer.server.port=80"
+      - "traefik.http.routers.fe-admin.entrypoints=web"
+      - "traefik.http.routers.fe-admin.rule=Host(`${FRONTEND_ADMIN_DOMAIN}`)"
+    volumes:
+      - ./fe-admin/dist:/usr/share/nginx/html
+      - ./fe-admin/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+  db:
+    ports:
+      - "${DB_PORT_EXTERNAL}:5432"
+    environment:
+      POSTGRES_USER: avi
+      POSTGRES_PASSWORD: avi
+      POSTGRES_DB: avi
+
+  dozzle:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+      - "traefik.http.routers.dozzle.entrypoints=web"
+      - "traefik.http.routers.dozzle.rule=Host(`${LOGS_DOMAIN}`)"
+
+  netdata:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.netdata.loadbalancer.server.port=19999"
+      - "traefik.http.routers.netdata.entrypoints=web"
+      - "traefik.http.routers.netdata.rule=Host(`${METRICS_DOMAIN}`)"
+      - "traefik.http.routers.netdata.middlewares=netdata-auth"
+      - "traefik.http.middlewares.netdata-auth.basicauth.users=${HTTP_BASIC_AUTH_HASH}"
+
+  mailpit:
+    image: axllent/mailpit:latest
+    expose:
+      - "8025"
+      - "1025"
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - avi
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --timeout=2 http://127.0.0.1:8025/ || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.mailpit.loadbalancer.server.port=8025"
+      - "traefik.http.routers.mailpit.entrypoints=web"
+      - "traefik.http.routers.mailpit.rule=Host(`${MAILPIT_DOMAIN}`)"
+
+volumes:
+  go_cache:

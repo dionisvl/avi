@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classifieds C2C Demo</title>
+    <style>
+        .filepond--root { margin: 0; }
+        .filepond--panel-root { background-color: #f3f4f6; border-radius: 8px; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-[#f1f2ed] text-gray-800 font-[-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif]">
+<div x-data="app()" x-init="setup()" x-cloak>
+    <template x-if="!envLoaded">
+        <div class="flex items-center justify-center min-h-screen p-5">
+            <div class="bg-white p-8 rounded-lg shadow-sm w-full max-w-[380px]">
+                <h1 class="text-2xl font-bold mb-2 text-blue-600">Classifieds C2C Demo</h1>
+                <p class="text-gray-500 text-sm">Loading configuration...</p>
+            </div>
+        </div>
+    </template>
+
+    <template x-if="envLoaded">
+        <div>
+            <div x-show="!isAuthenticated" class="flex items-center justify-center min-h-screen p-5">
+                <div class="bg-white p-8 rounded-lg shadow-sm w-full max-w-[380px]">
+                    <h1 class="text-2xl font-bold mb-2 text-blue-600">Classifieds C2C Demo</h1>
+                    <p class="text-gray-500 text-sm mb-7">Demo C2C listings marketplace</p>
+
+                    <div x-show="mode === MODES.LOGIN" class="flex flex-col gap-3" data-testid="login-form">
+                        <button @click="loginForm.email = 'test@example.com'; loginForm.password = 'password123'"
+                                class="flex items-center justify-between px-3 py-2 bg-gray-50 border border-dashed border-gray-300 rounded-md text-xs text-gray-500 hover:bg-gray-100">
+                            <span class="font-medium text-gray-700">Demo account</span>
+                            <span class="font-mono">test@example.com / password123</span>
+                        </button>
+                        <input type="email" x-model.trim="loginForm.email" placeholder="Email" autocomplete="email"
+                               class="px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                        <input type="password" x-model="loginForm.password" @keydown.enter="handleLogin" placeholder="Password" autocomplete="current-password"
+                               class="px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                        <button @click="handleLogin" :disabled="loading"
+                                class="px-4 py-2.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                            <span x-show="!loading">Login</span><span x-show="loading">Loading...</span>
+                        </button>
+                        <button @click="switchMode(MODES.REGISTER)" :disabled="loading"
+                                class="px-4 py-2.5 bg-gray-100 text-gray-800 rounded-md text-sm font-medium hover:bg-gray-200">
+                            Create Account
+                        </button>
+                    </div>
+
+                    <div x-show="mode === MODES.REGISTER" class="flex flex-col gap-3" data-testid="register-form">
+                        <h2 class="text-lg font-semibold mb-2">Create Account</h2>
+                        <input type="email" x-model.trim="registerForm.email" placeholder="Email" autocomplete="email"
+                               class="px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                        <input type="password" x-model="registerForm.password" placeholder="Password" autocomplete="new-password"
+                               class="px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                        <input type="password" x-model="registerForm.passwordConfirm" placeholder="Confirm Password" autocomplete="new-password" @keydown.enter="handleRegister"
+                               class="px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                        <button @click="handleRegister" :disabled="loading"
+                                class="px-4 py-2.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                            <span x-show="!loading">Register</span><span x-show="loading">Loading...</span>
+                        </button>
+                        <button @click="switchMode(MODES.LOGIN)" :disabled="loading"
+                                class="px-4 py-2.5 bg-gray-100 text-gray-800 rounded-md text-sm font-medium hover:bg-gray-200">
+                            Back to Login
+                        </button>
+                    </div>
+
+                    <div x-show="mode === MODES.VERIFY" class="flex flex-col gap-3" data-testid="verify-form">
+                        <h2 class="text-lg font-semibold mb-2">Verify Email</h2>
+                        <input type="email" x-model="verifyForm.email" placeholder="Email" disabled
+                               class="px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-gray-50 text-gray-600">
+                        <input type="text" x-model="verifyForm.code" placeholder="Enter 6-digit code" maxlength="6"
+                               @keydown.enter="handleVerifyEmail"
+                               class="px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 text-center">
+                        <button @click="handleVerifyEmail" :disabled="loading"
+                                class="px-4 py-2.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                            <span x-show="!loading">Verify Email</span><span x-show="loading">Loading...</span>
+                        </button>
+                        <button @click="switchMode(MODES.LOGIN)" :disabled="loading"
+                                class="px-4 py-2.5 bg-gray-100 text-gray-800 rounded-md text-sm font-medium hover:bg-gray-200">
+                            Back to Login
+                        </button>
+                    </div>
+
+                    <div x-show="successMessage && mode === MODES.LOGIN" x-text="successMessage"
+                         class="bg-green-50 text-green-800 p-3 rounded-md border-l-[3px] border-green-600 text-sm mt-3"></div>
+                    <div x-show="errorMessage" x-text="errorMessage"
+                         class="bg-red-50 text-red-800 p-3 rounded-md border-l-[3px] border-red-600 text-sm mt-3"></div>
+                </div>
+            </div>
+
+            <div x-show="isAuthenticated">
+                <nav class="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4 sticky top-0 z-10 shadow-sm overflow-x-auto">
+                    <span class="text-blue-600 font-bold text-lg mr-2 whitespace-nowrap">Classifieds C2C Demo</span>
+                    <button @click="goToItems()"
+                            :class="isItemMode() ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-gray-900'"
+                            class="text-sm whitespace-nowrap"
+                            data-testid="nav-items">Items</button>
+                    <button @click="goToFavorites()"
+                            :class="mode === MODES.FAVORITES ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-gray-900'"
+                            class="text-sm whitespace-nowrap"
+                            data-testid="nav-favorites">Favorites</button>
+                    <button @click="goToChat()"
+                            :class="mode === MODES.CHAT ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-gray-900'"
+                            class="text-sm whitespace-nowrap"
+                            data-testid="nav-chat">Chat</button>
+                    <button @click="goToProfile()"
+                            :class="mode === MODES.PROFILE ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-gray-900'"
+                            class="text-sm whitespace-nowrap"
+                            data-testid="nav-profile">Profile</button>
+                    <button @click="goToContact()"
+                            :class="mode === MODES.CONTACT ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-gray-900'"
+                            class="text-sm whitespace-nowrap"
+                            data-testid="nav-contact">Contact</button>
+                    <div class="flex items-center rounded-md border border-gray-200 bg-gray-50 p-0.5 shrink-0" data-testid="locale-switcher">
+                        <button @click="setLocale('en')"
+                                :class="locale === 'en' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-800'"
+                                class="px-2 py-1 rounded text-xs font-medium"
+                                data-testid="locale-en">EN</button>
+                        <button @click="setLocale('ru')"
+                                :class="locale === 'ru' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-800'"
+                                class="px-2 py-1 rounded text-xs font-medium"
+                                data-testid="locale-ru">RU</button>
+                    </div>
+                    <div class="ml-auto flex items-center gap-3">
+                        <span class="text-xs text-gray-400 whitespace-nowrap" x-text="me.email"></span>
+                        <button @click="handleLogout"
+                                data-testid="nav-logout"
+                                class="px-3 py-1.5 bg-red-600 text-white rounded-md text-xs font-medium hover:bg-red-700">
+                            Logout
+                        </button>
+                    </div>
+                </nav>
+
+                <div x-show="errorMessage && !isItemFormMode()"
+                     x-text="errorMessage"
+                     class="bg-red-50 text-red-800 p-3 border-b border-red-200 text-sm text-center"></div>
+
+                <div x-show="mode === MODES.ITEMS" class="p-6 max-w-6xl mx-auto" data-testid="items-section">
+                    <div class="flex items-center justify-between mb-5">
+                        <h2 class="text-xl font-bold">Items</h2>
+                        <button @click="openItemCreate()"
+                                data-testid="items-add"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+                            + Add Item
+                        </button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-lg shadow-sm mb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <input type="text" x-model="itemFilters.search" placeholder="Search listings"
+                               @keydown.enter="applyFilters()"
+                               data-testid="items-search"
+                               class="col-span-2 md:col-span-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                        <select x-model="itemFilters.category_id" data-testid="items-category-filter"
+                                class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 bg-white">
+                            <option value="">All categories</option>
+                            <template x-for="category in categories" :key="category.id">
+                                <option :value="category.id" x-text="categoryName(category)"></option>
+                            </template>
+                        </select>
+                        <select x-model="itemFilters.condition" data-testid="items-condition-filter"
+                                class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 bg-white">
+                            <option value="">Any condition</option>
+                            <option value="new">New</option>
+                            <option value="used">Used</option>
+                        </select>
+                        <select x-model="itemFilters.city_uuid" data-testid="items-city-filter"
+                                class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 bg-white">
+                            <option value="">All cities</option>
+                            <template x-for="city in activeCities()" :key="city.id">
+                                <option :value="city.id" x-text="cityName(city)"></option>
+                            </template>
+                        </select>
+                        <input type="number" x-model="itemFilters.price_min" placeholder="Price min"
+                               data-testid="items-price-min"
+                               class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                        <input type="number" x-model="itemFilters.price_max" placeholder="Price max"
+                               data-testid="items-price-max"
+                               class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                        <select x-model="itemFilters.status" data-testid="items-status-filter"
+                                class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 bg-white">
+                            <option value="">Any status</option>
+                            <option value="published">Published</option>
+                            <option value="draft">Draft</option>
+                            <option value="archived">Archived</option>
+                            <option value="sold">Sold</option>
+                        </select>
+                        <label class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md text-sm bg-white text-gray-700">
+                            <input type="checkbox" x-model="itemFilters.mine_only" data-testid="items-mine-only"
+                                   class="w-4 h-4 accent-blue-600">
+                            <span>My items</span>
+                        </label>
+                        <div class="flex gap-2 col-span-2 md:col-span-1">
+                            <button @click="applyFilters()"
+                                    data-testid="items-filter"
+                                    class="flex-1 px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+                                Filter
+                            </button>
+                            <button @click="resetFilters()"
+                                    data-testid="items-reset"
+                                    class="px-3 py-2 bg-gray-100 text-gray-700 rounded-md text-sm hover:bg-gray-200">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden" id="items-table" data-testid="items-table">
+                        <div x-show="itemsLoading" class="p-8 text-center text-sm text-gray-400">Loading...</div>
+                        <div x-show="!itemsLoading && items.length === 0" class="p-8 text-center text-sm text-gray-400">No items found</div>
+                        <div x-show="!itemsLoading && items.length > 0" class="divide-y divide-gray-100">
+                            <template x-for="item in items" :key="item.id">
+                                <div class="p-4 flex items-center gap-4" data-testid="item-row">
+                                    <template x-if="item.photos.length > 0">
+                                        <img :src="item.photos[0].url" :alt="item.title" class="w-16 h-16 rounded-md object-cover bg-gray-100">
+                                    </template>
+                                    <template x-if="item.photos.length === 0">
+                                        <div class="w-16 h-16 rounded-md bg-gray-100 flex items-center justify-center text-xs text-gray-400">No photo</div>
+                                    </template>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-semibold text-gray-900 truncate" x-text="item.title"></p>
+                                        <p class="text-xs text-gray-500">
+                                            <span x-text="item.category_name"></span>
+                                            <span x-show="item.category_name && item.city_name"> / </span>
+                                            <span x-text="item.city_name"></span>
+                                        </p>
+                                        <p class="text-xs text-gray-400 capitalize">
+                                            <span x-text="item.condition"></span>
+                                            <span> / </span>
+                                            <span x-text="item.status"></span>
+                                        </p>
+                                    </div>
+                                    <div class="text-right shrink-0">
+                                        <p class="font-semibold text-sm" x-text="formatPrice(item.price)"></p>
+                                        <div class="flex gap-2 mt-2">
+                                            <button @click="openItemDetail(item.id)"
+                                                    class="px-3 py-1.5 bg-white border border-gray-200 rounded-md text-xs text-gray-700 hover:bg-gray-50">
+                                                View
+                                            </button>
+                                            <button @click="openItemEdit(item)"
+                                                    class="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded-md text-xs hover:bg-blue-100">
+                                                Edit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="mode === MODES.ITEM_DETAIL" class="p-6 max-w-3xl mx-auto" data-testid="item-detail-section">
+                    <button @click="goBackFromItemDetail()"
+                            class="text-sm text-blue-600 hover:underline mb-4 flex items-center gap-1">
+                        &larr; Back to catalog
+                    </button>
+
+                    <div x-show="loading" class="text-center py-12 text-gray-500 text-sm">Loading...</div>
+
+                    <template x-if="itemDetail && !loading">
+                        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                            <div class="flex gap-2 p-4 bg-gray-50 overflow-x-auto">
+                                <template x-if="itemDetail.photos.length > 0">
+                                    <template x-for="photo in itemDetail.photos" :key="photo.id">
+                                        <img :src="photo.url" :alt="itemDetail.title" class="h-48 w-auto rounded-lg object-cover shrink-0">
+                                    </template>
+                                </template>
+                                <template x-if="itemDetail.photos.length === 0">
+                                    <div class="h-48 w-full flex items-center justify-center text-sm text-gray-400">No photos</div>
+                                </template>
+                            </div>
+
+                            <div class="p-6">
+                                <div class="flex items-start justify-between gap-4 mb-4">
+                                    <div>
+                                        <h2 class="text-2xl font-bold text-gray-900" x-text="itemDetail.title"></h2>
+                                        <p class="text-gray-500 text-sm mt-1">
+                                            <span x-text="itemDetail.category_name"></span>
+                                            <span x-show="itemDetail.category_name && itemDetail.city_name"> / </span>
+                                            <span x-text="itemDetail.city_name"></span>
+                                        </p>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-full text-sm font-medium capitalize"
+                                          :class="itemDetail.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'"
+                                          x-text="itemDetail.status"></span>
+                                </div>
+
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                        <p class="text-xs text-gray-400 mb-1">Condition</p>
+                                        <p class="font-semibold text-sm capitalize" x-text="itemDetail.condition"></p>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                        <p class="text-xs text-gray-400 mb-1">City</p>
+                                        <p class="font-semibold text-sm" x-text="itemDetail.city_name"></p>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                        <p class="text-xs text-gray-400 mb-1">Price</p>
+                                        <p class="font-semibold text-sm" x-text="formatPrice(itemDetail.price)"></p>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                        <p class="text-xs text-gray-400 mb-1">Category</p>
+                                        <p class="font-semibold text-sm" x-text="itemDetail.category_name"></p>
+                                    </div>
+                                </div>
+
+                                <template x-if="itemDetail.description">
+                                    <div class="mb-5">
+                                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Description</h3>
+                                        <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap" x-text="itemDetail.description"></p>
+                                    </div>
+                                </template>
+
+                                <template x-if="itemDetail.tags.length > 0">
+                                    <div class="mb-5">
+                                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Tags</h3>
+                                        <div class="flex flex-wrap gap-2">
+                                            <template x-for="tag in itemDetail.tags" :key="tag">
+                                                <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs" x-text="tag"></span>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <div class="border-t border-gray-100 pt-5 mb-5">
+                                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Seller</h3>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm"
+                                             x-text="(itemDetail.seller?.name || itemDetail.seller?.email || 'U')[0].toUpperCase()"></div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-medium text-sm" x-text="itemDetail.seller?.name || itemDetail.seller?.email || 'Seller'"></p>
+                                            <p class="text-xs text-gray-400" x-text="itemDetail.seller?.email || itemDetail.seller?.id || ''"></p>
+                                        </div>
+                                        <button x-show="itemDetail.seller?.id && itemDetail.seller.id !== me.id"
+                                                @click="openChatWithUser(itemDetail.seller.id)"
+                                                data-testid="item-seller-chat"
+                                                class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-xs font-medium hover:bg-blue-700">
+                                            Chat
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div x-show="canPromoteItem(itemDetail)" data-testid="promotion-payment-panel"
+                                     class="mb-5 bg-blue-50 border border-blue-100 rounded-lg p-4">
+                                    <div class="flex flex-col md:flex-row md:items-center gap-3">
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-semibold text-blue-900">Promote listing</p>
+                                            <p class="text-xs text-blue-700 mt-1">Payment for <span x-text="promotionPriceLabel()"></span></p>
+                                        </div>
+                                        <button @click="startPromotionPayment(itemDetail)"
+                                                :disabled="promotionPaymentLoading"
+                                                data-testid="promote-listing"
+                                                class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                                            <span x-show="!promotionPaymentLoading">Promote</span>
+                                            <span x-show="promotionPaymentLoading">Creating...</span>
+                                        </button>
+                                    </div>
+                                    <div x-show="promotionPaymentError" x-text="promotionPaymentError"
+                                         data-testid="promotion-payment-error"
+                                         class="bg-red-50 text-red-800 p-3 rounded-md border-l-[3px] border-red-600 text-sm mt-3"></div>
+                                    <div x-show="promotionPaymentStatus" x-text="promotionPaymentStatus"
+                                         data-testid="promotion-payment-status"
+                                         class="bg-green-50 text-green-800 p-3 rounded-md border-l-[3px] border-green-600 text-sm mt-3"></div>
+                                </div>
+
+                                <div class="flex gap-3 flex-wrap">
+                                    <button x-show="itemDetail.is_favorited === false"
+                                            @click="addToFavorites(itemDetail.id)"
+                                            data-testid="add-favorite"
+                                            class="px-4 py-2 bg-pink-50 text-pink-600 border border-pink-200 rounded-md text-sm font-medium hover:bg-pink-100">
+                                        Add to Favorites
+                                    </button>
+                                    <button x-show="itemDetail.is_favorited === true"
+                                            @click="removeFromFavorites(itemDetail.id)"
+                                            data-testid="remove-favorite"
+                                            class="px-4 py-2 bg-pink-600 text-white rounded-md text-sm font-medium hover:bg-pink-700">
+                                        Remove from Favorites
+                                    </button>
+                                    <button @click="openItemEdit(itemDetail)"
+                                            class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+                                        Edit
+                                    </button>
+                                    <button @click="handleItemDelete(itemDetail.id)"
+                                            class="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div x-show="isItemFormMode()" class="p-6 max-w-2xl mx-auto" data-testid="item-form-section">
+                    <button @click="goBackFromItemForm()"
+                            class="text-sm text-blue-600 hover:underline mb-4 flex items-center gap-1">
+                        &larr; Back to catalog
+                    </button>
+
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h2 class="text-lg font-bold mb-5" x-text="mode === MODES.ITEM_CREATE ? 'Add Item' : 'Edit Item'"></h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Title *</label>
+                                <input type="text" x-model="itemForm.title" placeholder="Listing title"
+                                       data-testid="item-title"
+                                       class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Category *</label>
+                                <select x-model="itemForm.category_id" data-testid="item-category"
+                                        class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 bg-white">
+                                    <option value="">Select category</option>
+                                    <template x-for="category in categories" :key="category.id">
+                                        <option :value="category.id" x-text="categoryName(category)"></option>
+                                    </template>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Condition *</label>
+                                <select x-model="itemForm.condition" data-testid="item-condition"
+                                        class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 bg-white">
+                                    <option value="new">New</option>
+                                    <option value="used">Used</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">City *</label>
+                                <select x-model="itemForm.city_uuid" data-testid="item-city"
+                                        class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 bg-white">
+                                    <option value="">Select city</option>
+                                    <template x-for="city in activeCities()" :key="city.id">
+                                        <option :value="city.id" x-text="cityName(city)"></option>
+                                    </template>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Status</label>
+                                <select x-model="itemForm.status" data-testid="item-status"
+                                        class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 bg-white">
+                                    <option value="published">Published</option>
+                                    <option value="draft">Draft</option>
+                                    <option value="archived">Archived</option>
+                                    <option value="sold">Sold</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Price amount</label>
+                                <input type="number" x-model="itemForm.price_amount" min="0" step="1"
+                                       data-testid="item-price-amount"
+                                       placeholder="Minor units"
+                                       class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Currency</label>
+                                <select x-model="itemForm.price_currency" data-testid="item-price-currency"
+                                        class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 bg-white">
+                                    <option value="RUB">RUB</option>
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                </select>
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                                <textarea x-model="itemForm.description" placeholder="Describe the item" rows="3"
+                                          data-testid="item-description"
+                                          class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 resize-none"></textarea>
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Tags (comma-separated)</label>
+                                <input type="text" x-model="itemForm.tags" placeholder="e.g. warranty, delivery"
+                                       data-testid="item-tags"
+                                       class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">
+                                    Photos
+                                    <span x-show="mode === MODES.ITEM_EDIT" class="text-gray-400">(add new photos)</span>
+                                </label>
+                                <input type="file" id="item-photo-input" accept="image/*" class="filepond" multiple>
+                                <p x-show="itemPhotoIds.length > 0" class="text-xs text-green-600 mt-1"
+                                   x-text="`${itemPhotoIds.length} photo(s) ready`"></p>
+                            </div>
+                        </div>
+
+                        <div x-show="itemFormError" x-text="itemFormError"
+                             class="bg-red-50 text-red-800 p-3 rounded-md border-l-[3px] border-red-600 text-sm mb-4"></div>
+
+                        <div class="flex gap-3">
+                            <button x-show="mode === MODES.ITEM_CREATE"
+                                    @click="handleItemCreate()" :disabled="itemFormLoading"
+                                    data-testid="item-create-submit"
+                                    class="px-5 py-2.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                                <span x-show="!itemFormLoading">Create Item</span>
+                                <span x-show="itemFormLoading">Saving...</span>
+                            </button>
+                            <button x-show="mode === MODES.ITEM_EDIT"
+                                    @click="handleItemUpdate()" :disabled="itemFormLoading"
+                                    data-testid="item-update-submit"
+                                    class="px-5 py-2.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                                <span x-show="!itemFormLoading">Save Changes</span>
+                                <span x-show="itemFormLoading">Saving...</span>
+                            </button>
+                            <button @click="goBackFromItemForm()"
+                                    class="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-200">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="mode === MODES.FAVORITES" data-testid="favorites-section" class="p-6 max-w-4xl mx-auto">
+                    <h2 class="text-xl font-bold mb-5">Favorites</h2>
+                    <div x-show="favoritesLoading" class="text-center py-12 text-gray-500 text-sm">Loading...</div>
+                    <div x-show="!favoritesLoading && favorites.length === 0" class="text-center py-12 text-gray-400 text-sm">
+                        No favorites yet. Browse <button @click="goToItems()" class="text-blue-600 hover:underline">Items</button> and add some.
+                    </div>
+                    <div x-show="!favoritesLoading && favorites.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <template x-for="fav in favorites" :key="fav.id">
+                            <div class="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4" data-testid="favorite-item">
+                                <template x-if="fav.item.photos.length > 0">
+                                    <img :src="fav.item.photos[0].url" :alt="fav.item.title" class="w-16 h-16 rounded-lg object-cover shrink-0">
+                                </template>
+                                <template x-if="fav.item.photos.length === 0">
+                                    <div class="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center text-xs text-gray-400 shrink-0">No photo</div>
+                                </template>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-semibold text-gray-900 truncate" x-text="fav.item.title"></p>
+                                    <p class="text-xs text-gray-500" x-text="fav.item.category_name"></p>
+                                    <p class="text-xs text-gray-400" x-text="fav.item.city_name"></p>
+                                </div>
+                                <div class="flex flex-col gap-2 shrink-0">
+                                    <button @click="openItemDetail(fav.item_id)"
+                                            class="px-3 py-1.5 bg-white border border-gray-200 rounded-md text-xs text-gray-700 hover:bg-gray-50">
+                                        View
+                                    </button>
+                                    <button @click="removeFromFavorites(fav.item_id)"
+                                            data-testid="remove-favorite-btn"
+                                            class="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-md text-xs hover:bg-red-100">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div x-show="favoritesPagination.total > 0"
+                         class="mt-4 text-xs text-gray-400 text-right"
+                         x-text="`${favoritesPagination.total} total`"></div>
+                </div>
+
+                <div x-show="mode === MODES.CHAT" data-testid="chat-section"
+                     class="p-6 max-w-6xl mx-auto h-[calc(100vh-64px)] flex flex-col overflow-hidden">
+                    <div class="flex items-center justify-between mb-5 gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold">Chat</h2>
+                            <p class="text-sm text-gray-500">Private conversations with sellers and buyers.</p>
+                        </div>
+                        <button @click="loadChatConversations()" :disabled="chatConversationsLoading"
+                                data-testid="chat-refresh"
+                                class="px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50">
+                            Refresh
+                        </button>
+                    </div>
+                    <div x-show="chatConversationsError" x-text="chatConversationsError"
+                         class="bg-red-50 text-red-800 p-3 rounded-md border-l-[3px] border-red-600 text-sm mb-4"
+                         data-testid="chat-conversations-error"></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 flex-1 min-h-0">
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col min-h-0">
+                            <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                                <span class="text-sm font-semibold text-gray-800">Conversations</span>
+                                <span class="text-xs text-gray-400" x-text="chatConversations.length"></span>
+                            </div>
+                            <div x-show="chatConversationsLoading" class="p-6 text-center text-sm text-gray-400">Loading...</div>
+                            <div x-show="!chatConversationsLoading && chatConversations.length === 0"
+                                 class="p-6 text-center text-sm text-gray-400" data-testid="chat-empty">
+                                No conversations yet.
+                            </div>
+                            <div x-show="!chatConversationsLoading && chatConversations.length > 0" class="divide-y divide-gray-100 overflow-y-auto min-h-0">
+                                <template x-for="conversation in chatConversations" :key="conversation.id">
+                                    <button @click="selectChatConversation(conversation)"
+                                            :class="chatSelectedConversation?.id === conversation.id ? 'bg-blue-50' : 'hover:bg-gray-50'"
+                                            class="w-full px-4 py-3 flex items-center gap-3 text-left"
+                                            data-testid="chat-conversation">
+                                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold text-sm shrink-0"
+                                             x-text="chatConversationTitle(conversation)[0]?.toUpperCase() || 'U'"></div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-medium text-sm text-gray-900 truncate" x-text="chatConversationTitle(conversation)"></p>
+                                            <p class="text-xs text-gray-400 truncate" x-text="conversation.last_message_preview || 'No messages yet'"></p>
+                                        </div>
+                                        <span x-show="conversation.unread_count > 0"
+                                              x-text="conversation.unread_count"
+                                              class="min-w-5 h-5 px-1.5 rounded-full bg-blue-600 text-white text-[11px] leading-5 text-center"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col min-h-0">
+                            <template x-if="!chatSelectedConversation">
+                                <div class="flex-1 flex items-center justify-center p-10 text-sm text-gray-400">Select a conversation.</div>
+                            </template>
+                            <template x-if="chatSelectedConversation">
+                                <div class="flex flex-col h-full min-h-0">
+                                    <div class="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold text-sm"
+                                             x-text="chatConversationTitle(chatSelectedConversation)[0]?.toUpperCase() || 'U'"></div>
+                                        <div>
+                                            <p class="font-semibold text-gray-900 text-sm" x-text="chatConversationTitle(chatSelectedConversation)"></p>
+                                            <p class="text-xs text-gray-400 font-mono" x-text="chatSelectedConversation.peer_id"></p>
+                                        </div>
+                                    </div>
+                                    <div x-show="chatMessagesError" x-text="chatMessagesError"
+                                         class="bg-red-50 text-red-800 p-3 text-sm"
+                                         data-testid="chat-messages-error"></div>
+                                    <div id="chat-messages" class="flex-1 min-h-0 overflow-y-auto p-5 bg-gray-50 flex flex-col gap-3" data-testid="chat-messages">
+                                        <div x-show="chatMessagesLoading" class="text-center text-sm text-gray-400 py-8">Loading...</div>
+                                        <div x-show="!chatMessagesLoading && chatMessages.length === 0" class="text-center text-sm text-gray-400 py-8" data-testid="chat-messages-empty">
+                                            No messages yet.
+                                        </div>
+                                        <template x-for="message in chatMessages" :key="message.id">
+                                            <div :class="message.is_mine ? 'items-end' : 'items-start'" class="flex flex-col gap-1" data-testid="chat-message">
+                                                <div :class="message.is_mine ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border border-gray-200'"
+                                                     class="max-w-[78%] rounded-lg px-3 py-2 text-sm shadow-sm">
+                                                    <p x-show="message.body" x-text="message.body" class="whitespace-pre-wrap break-words"></p>
+                                                </div>
+                                                <span class="text-[11px] text-gray-400" x-text="chatMessageTime(message)"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div class="border-t border-gray-100 p-4 bg-white shrink-0">
+                                        <div class="flex items-end gap-2">
+                                            <textarea x-model="chatMessageBody" @keydown="handleChatInputKeydown" rows="2"
+                                                      placeholder="Message" data-testid="chat-message-input"
+                                                      class="flex-1 px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 resize-none"></textarea>
+                                            <button @click="sendChatMessage()"
+                                                    :disabled="chatSending || !chatMessageBody.trim()"
+                                                    data-testid="chat-send"
+                                                    class="px-4 py-2.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                                                <span x-show="!chatSending">Send</span>
+                                                <span x-show="chatSending">Sending...</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="mode === MODES.PROFILE" class="p-6 max-w-xl mx-auto" data-testid="profile-section">
+                    <h2 class="text-xl font-bold mb-6">Profile</h2>
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-5">
+                        <h3 class="text-base font-semibold mb-4">Edit Profile</h3>
+                        <div class="flex flex-col gap-3">
+                            <div class="flex items-center gap-4">
+                                <template x-if="me.avatar_url">
+                                    <img :src="me.avatar_url" alt="Avatar" class="w-20 h-20 rounded-full object-cover border border-gray-200 shrink-0">
+                                </template>
+                                <template x-if="!me.avatar_url">
+                                    <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-xl shrink-0">User</div>
+                                </template>
+                                <div class="flex-1">
+                                    <input type="file" id="profile-avatar-input" accept="image/*" class="filepond">
+                                    <div x-show="avatarUploadStatus" x-text="avatarUploadStatus"
+                                         :class="avatarUploadError ? 'bg-red-50 text-red-700 border-red-400' : 'bg-green-50 text-green-700 border-green-400'"
+                                         class="mt-2 p-2 rounded-md border-l-[3px] text-xs"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Name</label>
+                                <input type="text" x-model="profileForm.name" placeholder="Your name"
+                                       data-testid="profile-name"
+                                       class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                            </div>
+                            <div class="border-t border-gray-100 pt-4 mt-1">
+                                <h4 class="text-sm font-semibold text-gray-700 mb-3">Default item filters</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Category</label>
+                                        <select x-model="profilePreferencesForm.category_id" data-testid="profile-pref-category"
+                                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 bg-white">
+                                            <option value="">Any category</option>
+                                            <template x-for="category in categories" :key="category.id">
+                                                <option :value="category.id" x-text="categoryName(category)"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">City</label>
+                                        <select x-model="profilePreferencesForm.city_id" data-testid="profile-pref-city"
+                                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 bg-white">
+                                            <option value="">Any city</option>
+                                            <template x-for="city in activeCities()" :key="city.id">
+                                                <option :value="city.id" x-text="cityName(city)"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Condition</label>
+                                        <select x-model="profilePreferencesForm.condition" data-testid="profile-pref-condition"
+                                                class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 bg-white">
+                                            <option value="">Any condition</option>
+                                            <option value="new">New</option>
+                                            <option value="used">Used</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Search</label>
+                                        <input type="text" x-model="profilePreferencesForm.search" placeholder="Default search"
+                                               data-testid="profile-pref-search"
+                                               class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Min price</label>
+                                        <input type="number" x-model="profilePreferencesForm.price_min" min="0" step="1"
+                                               data-testid="profile-pref-price-min"
+                                               class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Max price</label>
+                                        <input type="number" x-model="profilePreferencesForm.price_max" min="0" step="1"
+                                               data-testid="profile-pref-price-max"
+                                               class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                                    </div>
+                                </div>
+                            </div>
+                            <div x-show="profileError" x-text="profileError"
+                                 class="bg-red-50 text-red-800 p-3 rounded-md border-l-[3px] border-red-600 text-sm" data-testid="profile-error"></div>
+                            <div x-show="profileStatus" x-text="profileStatus"
+                                 class="bg-green-50 text-green-800 p-3 rounded-md border-l-[3px] border-green-600 text-sm" data-testid="profile-success"></div>
+                            <button @click="handleUpdateProfile()" :disabled="profileLoading"
+                                    data-testid="profile-save"
+                                    class="px-4 py-2.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                                <span x-show="!profileLoading">Save</span><span x-show="profileLoading">Saving...</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm mb-5">
+                        <h3 class="text-base font-semibold mb-4">Change Password</h3>
+                        <div class="flex flex-col gap-3">
+                            <input type="password" x-model="changePasswordForm.current_password" placeholder="Current password"
+                                   data-testid="current-password"
+                                   class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                            <input type="password" x-model="changePasswordForm.new_password" placeholder="New password"
+                                   data-testid="new-password"
+                                   class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                            <div x-show="changePasswordError" x-text="changePasswordError"
+                                 class="bg-red-50 text-red-800 p-3 rounded-md border-l-[3px] border-red-600 text-sm" data-testid="change-password-error"></div>
+                            <div x-show="changePasswordStatus" x-text="changePasswordStatus"
+                                 class="bg-green-50 text-green-800 p-3 rounded-md border-l-[3px] border-green-600 text-sm" data-testid="change-password-success"></div>
+                            <button @click="handleChangePassword()" :disabled="changePasswordLoading"
+                                    data-testid="change-password-btn"
+                                    class="px-4 py-2.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                                <span x-show="!changePasswordLoading">Change Password</span>
+                                <span x-show="changePasswordLoading">Saving...</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-red-100">
+                        <h3 class="text-base font-semibold text-red-700 mb-1">Delete Account</h3>
+                        <p class="text-xs text-gray-500 mb-4">This action is irreversible. Enter your password to confirm.</p>
+                        <div class="flex flex-col gap-3">
+                            <input type="password" x-model="deleteAccountForm.password" placeholder="Your current password"
+                                   data-testid="delete-password"
+                                   class="w-full px-3 py-2.5 border border-red-200 rounded-md text-sm focus:outline-none focus:border-red-500">
+                            <div x-show="deleteAccountError" x-text="deleteAccountError"
+                                 class="bg-red-50 text-red-800 p-3 rounded-md border-l-[3px] border-red-600 text-sm" data-testid="delete-account-error"></div>
+                            <button @click="handleDeleteAccount()" :disabled="deleteAccountLoading"
+                                    data-testid="delete-account-btn"
+                                    class="px-4 py-2.5 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 disabled:opacity-50">
+                                <span x-show="!deleteAccountLoading">Delete My Account</span>
+                                <span x-show="deleteAccountLoading">Deleting...</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="mode === MODES.CONTACT" data-testid="contact-section" class="p-6 max-w-2xl mx-auto">
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h2 class="text-xl font-bold mb-5">Contact Support</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Name *</label>
+                                <input type="text" x-model="contactForm.name" data-testid="contact-name" placeholder="Your name"
+                                       class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Email *</label>
+                                <input type="email" x-model="contactForm.email" data-testid="contact-form-email" placeholder="you@example.com"
+                                       class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Subject *</label>
+                                <input type="text" x-model="contactForm.subject" data-testid="contact-subject" placeholder="Short subject"
+                                       class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Message *</label>
+                                <textarea x-model="contactForm.message" rows="5" data-testid="contact-message" placeholder="How can we help?"
+                                          class="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-600 resize-none"></textarea>
+                            </div>
+                        </div>
+                        <div x-show="contactError" x-text="contactError"
+                             class="bg-red-50 text-red-800 p-3 rounded-md border-l-[3px] border-red-600 text-sm mt-4"
+                             data-testid="contact-error"></div>
+                        <div x-show="contactStatus" x-text="contactStatus"
+                             class="bg-green-50 text-green-800 p-3 rounded-md border-l-[3px] border-green-600 text-sm mt-4"
+                             data-testid="contact-success"></div>
+                        <button @click="submitContactMessage()" :disabled="contactLoading"
+                                data-testid="contact-submit"
+                                class="mt-4 px-4 py-2.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                            <span x-show="!contactLoading">Send Message</span>
+                            <span x-show="contactLoading">Sending...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
+
+<script src="/env.js"></script>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

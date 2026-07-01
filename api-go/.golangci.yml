@@ -1,0 +1,40 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    - staticcheck
+    - govet
+    - errcheck
+    - exhaustive
+    - bodyclose
+    - ineffassign
+    - unused
+    - misspell
+    - revive
+  exclusions:
+    generated: strict
+    paths:
+      - "docs/.*"
+    rules:
+      - linters:
+          - revive
+        text: "exported:"
+      - linters:
+          - revive
+        text: "package-comments:"
+      - linters:
+          - revive
+        text: "unused-parameter:"
+
+linters-settings:
+  exhaustive:
+    default-signifies-exhaustive: true
+    ignore-enum-types: "reflect.Kind"
+  errcheck:
+    exclude-functions:
+      - (net/http.ResponseWriter).Write
+  revive:
+    rules:
+      - name: var-naming
+        severity: warning

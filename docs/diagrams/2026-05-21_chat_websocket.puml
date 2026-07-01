@@ -1,0 +1,95 @@
+@startuml WebSocket Chat
+
+skinparam sequenceArrowThickness 1.5
+skinparam participantPadding 12
+skinparam boxPadding 8
+
+actor "User A" as A
+actor "User B" as B
+participant "Frontend A" as FA
+participant "Frontend B" as FB
+participant "Handler" as H
+participant "Service" as S
+participant "Hub" as Hub
+participant "imageproc" as IP
+participant "DB" as DB
+participant "S3" as S3
+
+== Open / find conversation ==
+
+A -> FA: open chat with B
+FA -> H: POST /chat/conversations {peer_user_id}
+H -> S: OpenConversation(A, B)
+S -> DB: UPSERT conversations\n(normalize: userA < userB)\nON CONFLICT DO NOTHING
+DB --> S: conversation
+S --> H: conversation
+H -> DB: GetConversation + UnreadCounts\n+ LastMessageBodies (DISTINCT ON)
+DB --> H: ConversationView
+H --> FA: 200 {id, peer_name, unread_count}
+
+== User B connects via WebSocket ==
+
+B -> FB: open chat
+FB -> H: GET /conversations/{id}/ws?token=<jwt>
+note right: Browser can't send\nAuthorization header\nfor WebSocket upgrades
+H -> H: ValidateToken → userID=B\nEnsureParticipant(convID, B)
+H -> Hub: Register(B, conn)
+Hub -> Hub: users[B][client] = {}\ngo writePump(client)
+H --> FB: 101 Switching Protocols
+
+== Send text message ==
+
+A -> FA: type message
+FA -> H: POST /conversations/{id}/messages\nmultipart body="Hello"
+H -> S: SendMessage(convID, sender=A, body)
+S -> DB: BEGIN\nINSERT chat_messages RETURNING id, created_at\nUPDATE conversations SET last_message_at=NOW()\nCOMMIT
+S -> Hub: SendToUser(B, {is_mine:false, body})
+Hub --> FB: wsjson.Write → 🔔 new message
+S -> Hub: SendToUser(A, {is_mine:true, body})
+Hub --> FA: echo to other tabs
+H --> FA: 201 {id, body, created_at}
+
+== Send photo (any format → WebP) ==
+
+A -> FA: attach photo (JPEG/PNG/HEIC/…)
+FA -> H: POST /conversations/{id}/messages\nmultipart file=photo
+H -> H: DetectMIME(magic bytes)\nIsSupported?
+H -> IP: Convert(src)
+IP -> IP: guardPixels (DecodeConfig ≤40MP)\ndecode → resize ≤2048px (CatmullRom)\nwebp.Encode(quality=75)
+IP --> H: {webpBytes, width, height}
+H -> S3: Upload "chat/{convID}/{uuid}/conv.webp"
+S3 --> H: OK
+H -> S: SendMessage(…, attachmentKey, mime="image/webp")
+S -> DB: INSERT chat_messages (attachment_*)
+S -> Hub: SendToUser(B, {attachment_url})
+Hub --> FB: 🖼 photo ready
+H --> FA: 201 {attachment_url, attachment_mime:"image/webp"}
+
+== Load history (keyset pagination) ==
+
+A -> FA: scroll up
+FA -> H: GET /conversations/{id}/messages\n?before=<RFC3339>&limit=50
+H -> DB: SELECT … WHERE created_at < $before\nORDER BY created_at DESC LIMIT 50
+note right: Index: (conversation_id, created_at DESC)\nO(log N) regardless of history size
+DB --> H: messages → reverse → IsMine, attachment_url
+H --> FA: 200 [{id, body, is_mine, created_at}]
+
+== Mark as read ==
+
+A -> FA: open conversation
+FA -> H: POST /conversations/{id}/read
+H -> DB: INSERT chat_reads ON CONFLICT DO UPDATE\nSET last_read_at = NOW()
+H --> FA: 204
+
+== Keepalive & slow-client drop ==
+
+loop every 54s (pongWait × 9/10)
+    Hub -> FB: conn.Ping(timeout=10s)
+    FB --> Hub: Pong
+end
+
+Hub -> Hub: send buffer full (64 msgs)
+Hub -> Hub: Unregister → close(client.send)
+Hub -> FB: conn.CloseNow()
+
+@enduml
