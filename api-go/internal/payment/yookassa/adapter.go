@@ -240,6 +240,8 @@ func formatAmount(m model.Money) string {
 
 func descriptionFromPurpose(purpose model.PaymentPurpose) string {
 	switch purpose {
+	case model.PaymentPurposeDemoCheckout:
+		return "Avi demo checkout"
 	case model.PaymentPurposePromoteListing:
 		return "Listing promotion"
 	case model.PaymentPurposeListingPlacement:

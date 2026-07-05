@@ -1,6 +1,6 @@
 basePath: /api/v1
 definitions:
-  github_com_dionisvl_classifieds_api-go_internal_api.PaginationResponse:
+  github_com_dionisvl_avi_api-go_internal_api.PaginationResponse:
     properties:
       page:
         type: integer
@@ -11,7 +11,7 @@ definitions:
       total_pages:
         type: integer
     type: object
-  github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails:
+  github_com_dionisvl_avi_api-go_internal_api.ProblemDetails:
     properties:
       code:
         type: string
@@ -22,7 +22,7 @@ definitions:
       title:
         type: string
     type: object
-  github_com_dionisvl_classifieds_api-go_internal_api_item.CategoryResponse:
+  github_com_dionisvl_avi_api-go_internal_api_item.CategoryResponse:
     properties:
       id:
         type: string
@@ -31,7 +31,7 @@ definitions:
       slug:
         type: string
     type: object
-  github_com_dionisvl_classifieds_api-go_internal_api_item.CityResponse:
+  github_com_dionisvl_avi_api-go_internal_api_item.CityResponse:
     properties:
       geoname_id:
         type: integer
@@ -48,14 +48,14 @@ definitions:
       slug:
         type: string
     type: object
-  github_com_dionisvl_classifieds_api-go_internal_api_item.ItemResponse:
+  github_com_dionisvl_avi_api-go_internal_api_item.ItemResponse:
     properties:
       category:
-        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.CategoryResponse'
+        $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api_item.CategoryResponse'
       category_id:
         type: string
       city:
-        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.CityResponse'
+        $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api_item.CityResponse'
       condition:
         type: string
       created_at:
@@ -68,12 +68,12 @@ definitions:
         type: boolean
       photos:
         items:
-          $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.PhotoResponse'
+          $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api_item.PhotoResponse'
         type: array
       price:
-        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.PriceResponse'
+        $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api_item.PriceResponse'
       seller:
-        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.SellerResponse'
+        $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api_item.SellerResponse'
       slug:
         type: string
       status:
@@ -83,11 +83,11 @@ definitions:
           type: string
         type: array
       thumbnail:
-        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.PhotoResponse'
+        $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api_item.PhotoResponse'
       title:
         type: string
     type: object
-  github_com_dionisvl_classifieds_api-go_internal_api_item.PhotoResponse:
+  github_com_dionisvl_avi_api-go_internal_api_item.PhotoResponse:
     properties:
       id:
         type: string
@@ -96,21 +96,21 @@ definitions:
       url:
         type: string
     type: object
-  github_com_dionisvl_classifieds_api-go_internal_api_item.PriceResponse:
+  github_com_dionisvl_avi_api-go_internal_api_item.PriceResponse:
     properties:
       amount:
         type: integer
       currency:
         type: string
     type: object
-  github_com_dionisvl_classifieds_api-go_internal_api_item.SellerResponse:
+  github_com_dionisvl_avi_api-go_internal_api_item.SellerResponse:
     properties:
       id:
         type: string
       name:
         type: string
     type: object
-  github_com_dionisvl_classifieds_api-go_internal_model.UserPreferences:
+  github_com_dionisvl_avi_api-go_internal_model.UserPreferences:
     properties:
       category_id:
         description: UUID string
@@ -340,7 +340,7 @@ definitions:
     properties:
       data:
         items:
-          $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.CityResponse'
+          $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api_item.CityResponse'
         type: array
     type: object
   internal_api_contact.CreateRequest:
@@ -388,7 +388,7 @@ definitions:
       id:
         type: string
       item:
-        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api_item.ItemResponse'
+        $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api_item.ItemResponse'
       item_id:
         type: string
     type: object
@@ -399,7 +399,7 @@ definitions:
           $ref: '#/definitions/internal_api_favorite.FavoriteItemResponse'
         type: array
       pagination:
-        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.PaginationResponse'
+        $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.PaginationResponse'
     type: object
   internal_api_health.HealthResponse:
     description: Health check response
@@ -481,7 +481,7 @@ definitions:
           $ref: '#/definitions/internal_api_item.ItemResponse'
         type: array
       pagination:
-        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.PaginationResponse'
+        $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.PaginationResponse'
     type: object
   internal_api_item.ItemResponse:
     properties:
@@ -613,6 +613,9 @@ definitions:
   internal_api_payment.CreatePaymentRequest:
     properties:
       purpose:
+        enum:
+        - promote_listing
+        - demo_checkout
         type: string
       return_url:
         type: string
@@ -676,7 +679,7 @@ definitions:
       name:
         type: string
       preferences:
-        $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_model.UserPreferences'
+        $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_model.UserPreferences'
       roles:
         items:
           type: string
@@ -717,7 +720,7 @@ info:
   description: |-
     Demo classifieds marketplace API (C2C listings: items, categories, favorites, chat, listing promotion).
     Not affiliated with Avito, OLX, or any other classifieds platform.
-  title: Classifieds Marketplace API
+  title: avi Marketplace API
   version: "1.0"
 paths:
   /api/v1/auth/change-password:
@@ -743,11 +746,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - BearerAuth: []
       summary: Change password
@@ -774,11 +777,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: Login
       tags:
       - auth
@@ -796,7 +799,7 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - BearerAuth: []
       summary: Logout current user from all devices
@@ -823,11 +826,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: Refresh token
       tags:
       - auth
@@ -852,11 +855,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: Register a new user
       tags:
       - auth
@@ -883,7 +886,7 @@ paths:
         "429":
           description: Too Many Requests
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: Resend email verification code
       tags:
       - auth
@@ -910,7 +913,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: Confirm password reset code
       tags:
       - auth
@@ -937,7 +940,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: Request password reset
       tags:
       - auth
@@ -964,7 +967,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: Set new password
       tags:
       - auth
@@ -991,7 +994,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: Verify email
       tags:
       - auth
@@ -1015,7 +1018,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: List categories
       tags:
       - categories
@@ -1044,11 +1047,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: Get category by ID
       tags:
       - categories
@@ -1085,15 +1088,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "429":
           description: Too Many Requests
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: Send contact form message
       tags:
       - contact-messages
@@ -1185,11 +1188,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - BearerAuth: []
       summary: Create item
@@ -1215,15 +1218,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - BearerAuth: []
       summary: Delete item
@@ -1246,7 +1249,7 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: Get item by ID or slug
       tags:
       - items
@@ -1278,19 +1281,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - BearerAuth: []
       summary: Update item
@@ -1317,7 +1320,7 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - BearerAuth: []
       summary: List favorites
@@ -1345,19 +1348,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - BearerAuth: []
       summary: Add item to favorites
@@ -1379,11 +1382,11 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - BearerAuth: []
       summary: Remove item from favorites
@@ -1410,11 +1413,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - Bearer: []
       summary: Create a payment
@@ -1434,7 +1437,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       summary: Webhook for YooKassa payment notifications
       tags:
       - payments
@@ -1471,11 +1474,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - BearerAuth: []
       summary: Upload a file
@@ -1500,11 +1503,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - BearerAuth: []
       summary: Delete current user account
@@ -1523,7 +1526,7 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - BearerAuth: []
       summary: Get current user info
@@ -1549,11 +1552,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_dionisvl_classifieds_api-go_internal_api.ProblemDetails'
+            $ref: '#/definitions/github_com_dionisvl_avi_api-go_internal_api.ProblemDetails'
       security:
       - BearerAuth: []
       summary: Update current user profile

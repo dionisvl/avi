@@ -52,7 +52,7 @@ func (h *Handler) Routes(authSvc apimiddleware.TokenValidator) chi.Router {
 // Request/Response types
 
 type CreatePaymentRequest struct {
-	Purpose   string `json:"purpose" validate:"required,eq=promote_listing"`
+	Purpose   string `json:"purpose" validate:"required,oneof=promote_listing demo_checkout"`
 	SubjectID string `json:"subject_id" validate:"required,uuid"`
 	ReturnURL string `json:"return_url"`
 }

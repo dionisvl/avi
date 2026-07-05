@@ -59,6 +59,35 @@ services:
       - "traefik.http.routers.fe-admin-secure.rule=Host(`${FRONTEND_ADMIN_DOMAIN}`)"
       - "traefik.http.routers.fe-admin-secure.tls.certresolver=myresolver"
 
+  fe-nextjs:
+    build:
+      context: ./fe-nextjs
+      dockerfile: Dockerfile
+      args:
+        # NEXT_PUBLIC_* are inlined into the client bundle at build time.
+        NEXT_PUBLIC_API_URL: https://${API_DOMAIN}
+        NEXT_PUBLIC_APP_URL: https://${FRONTEND_DOMAIN}
+        # Image hosts allowed by next/image (see fe-nextjs/next.config.ts).
+        NEXT_PUBLIC_S3_PUBLIC_BASE_URL: ${S3_PUBLIC_BASE_URL}
+        NEXT_PUBLIC_IMAGE_HOSTS: ${NEXT_PUBLIC_IMAGE_HOSTS:-}
+        # Demo mode: keep false for real deployments.
+        NEXT_PUBLIC_DEMO_MODE: ${NEXT_PUBLIC_DEMO_MODE:-false}
+        NEXT_PUBLIC_DEMO_USERS: ${NEXT_PUBLIC_DEMO_USERS:-[]}
+        NEXT_PUBLIC_MAILPIT_URL: ${NEXT_PUBLIC_MAILPIT_URL:-}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.fe-nextjs.loadbalancer.server.port=3000"
+      # HTTP router with redirect to HTTPS
+      - "traefik.http.routers.fe-nextjs-http.entrypoints=web"
+      - "traefik.http.routers.fe-nextjs-http.rule=Host(`${FRONTEND_DOMAIN}`)"
+      - "traefik.http.routers.fe-nextjs-http.middlewares=fe-nextjs-redirect-https"
+      - "traefik.http.middlewares.fe-nextjs-redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.fe-nextjs-redirect-https.redirectscheme.permanent=true"
+      # HTTPS router
+      - "traefik.http.routers.fe-nextjs-secure.entrypoints=websecure"
+      - "traefik.http.routers.fe-nextjs-secure.rule=Host(`${FRONTEND_DOMAIN}`)"
+      - "traefik.http.routers.fe-nextjs-secure.tls.certresolver=myresolver"
+
   db:
     restart: unless-stopped
 

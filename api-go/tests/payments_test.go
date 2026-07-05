@@ -70,6 +70,36 @@ func TestPayments_PromoteOthersListingForbidden(t *testing.T) {
 	assert.Equal(t, http.StatusForbidden, rec.Code)
 }
 
+// TestPayments_DemoCheckoutOthersListingAllowed verifies demo checkout can be
+// started for any published listing. It is a payment demo, not seller promotion.
+func TestPayments_DemoCheckoutOthersListingAllowed(t *testing.T) {
+	app := newTestApp(t)
+	ownerToken := registerVerifyAndLogin(t, app, "pay-demo-owner-"+uuid.New().String()+"@example.com", "password123")
+	buyerToken := registerVerifyAndLogin(t, app, "pay-demo-buyer-"+uuid.New().String()+"@example.com", "password123")
+	itemID := createPublishedItem(t, app, ownerToken, "Demo Checkout")
+
+	body, err := json.Marshal(map[string]any{
+		"purpose":    "demo_checkout",
+		"subject_id": itemID.String(),
+	})
+	require.NoError(t, err)
+
+	req := httptest.NewRequest("POST", "/api/v1/payments", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+buyerToken)
+	rec := httptest.NewRecorder()
+	app.ServeHTTP(rec, req)
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	var resp struct {
+		ID              uuid.UUID `json:"id"`
+		ConfirmationURL string    `json:"confirmation_url"`
+	}
+	require.NoError(t, json.NewDecoder(rec.Body).Decode(&resp))
+	assert.NotEqual(t, uuid.Nil, resp.ID)
+	assert.NotEmpty(t, resp.ConfirmationURL)
+}
+
 // TestPayments_PromoteMissingListingNotFound verifies promoting a non-existent
 // item returns 404.
 func TestPayments_PromoteMissingListingNotFound(t *testing.T) {

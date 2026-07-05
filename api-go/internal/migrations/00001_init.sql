@@ -11,6 +11,7 @@ CREATE TYPE item_status AS ENUM ('published', 'draft', 'archived', 'sold');
 CREATE TYPE payment_provider AS ENUM ('yookassa');
 CREATE TYPE payment_purpose AS ENUM (
   'promote_listing',
+  'demo_checkout',
   'listing_placement',
   'listing_boost',
   'subscription'

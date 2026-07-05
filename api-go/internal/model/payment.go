@@ -17,6 +17,7 @@ type PaymentPurpose string
 
 const (
 	PaymentPurposePromoteListing   PaymentPurpose = "promote_listing"
+	PaymentPurposeDemoCheckout     PaymentPurpose = "demo_checkout"
 	PaymentPurposeListingPlacement PaymentPurpose = "listing_placement"
 	PaymentPurposeListingBoost     PaymentPurpose = "listing_boost"
 	PaymentPurposeSubscription     PaymentPurpose = "subscription"
@@ -28,7 +29,7 @@ func (p PaymentPurpose) String() string {
 
 func (p PaymentPurpose) Valid() bool {
 	switch p {
-	case PaymentPurposePromoteListing, PaymentPurposeListingPlacement,
+	case PaymentPurposePromoteListing, PaymentPurposeDemoCheckout, PaymentPurposeListingPlacement,
 		PaymentPurposeListingBoost, PaymentPurposeSubscription:
 		return true
 	}
