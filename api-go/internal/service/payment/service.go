@@ -81,8 +81,7 @@ func (s *service) CreatePayment(ctx context.Context, in CreatePaymentInput) (*Cr
 		return nil, apperrors.New(apperrors.ErrBadRequest, "invalid payment purpose")
 	}
 
-	// Only promote_listing is supported for MVP
-	if in.Purpose != model.PaymentPurposePromoteListing {
+	if in.Purpose != model.PaymentPurposePromoteListing && in.Purpose != model.PaymentPurposeDemoCheckout {
 		return nil, apperrors.New(apperrors.ErrBadRequest, "unsupported payment purpose")
 	}
 
@@ -95,18 +94,19 @@ func (s *service) CreatePayment(ctx context.Context, in CreatePaymentInput) (*Cr
 		return nil, apperrors.New(apperrors.ErrInternal, "failed to load item")
 	}
 
-	// Only the seller can promote their own listing
-	if item.SellerID != in.UserID {
+	if in.Purpose == model.PaymentPurposePromoteListing && item.SellerID != in.UserID {
 		return nil, apperrors.New(apperrors.ErrForbidden, "you can only promote your own listing")
 	}
 
-	// Check if listing is already promoted
 	hasEntitlement, err := s.repo.HasEntitlement(ctx, in.UserID, in.Purpose, in.SubjectID)
 	if err != nil {
 		return nil, apperrors.New(apperrors.ErrInternal, "failed to check entitlement")
 	}
 	if hasEntitlement {
-		return nil, apperrors.New(apperrors.ErrAlreadyExists, "this listing is already promoted")
+		if in.Purpose == model.PaymentPurposePromoteListing {
+			return nil, apperrors.New(apperrors.ErrAlreadyExists, "this listing is already promoted")
+		}
+		return nil, apperrors.New(apperrors.ErrAlreadyExists, "this demo checkout is already paid")
 	}
 
 	// Get buyer email for receipt (54-FZ requirement) BEFORE creating any
@@ -141,7 +141,9 @@ func (s *service) CreatePayment(ctx context.Context, in CreatePaymentInput) (*Cr
 		return nil, apperrors.New(apperrors.ErrAlreadyExists, "payment is in progress, please retry")
 	}
 
-	// Create local payment
+	// Demo checkout intentionally uses the configured demo amount. The current
+	// product model has no order lifecycle yet, and seed listings may use
+	// non-RUB prices while YooKassa test payments here are RUB-only.
 	amount, err := model.NewMoney(s.promoteListingAmountMinor, s.currency)
 	if err != nil {
 		return nil, apperrors.New(apperrors.ErrInternal, "invalid payment amount configuration")
@@ -177,7 +179,7 @@ func (s *service) CreatePayment(ctx context.Context, in CreatePaymentInput) (*Cr
 		Purpose:        in.Purpose,
 		SubjectID:      in.SubjectID,
 		Amount:         amount,
-		Description:    "Listing promotion",
+		Description:    descriptionFromPurpose(in.Purpose),
 		ReturnURL:      in.ReturnURL,
 		IdempotencyKey: payment.IdempotencyKey,
 		BuyerEmail:     buyerEmail,
@@ -200,6 +202,23 @@ func (s *service) CreatePayment(ctx context.Context, in CreatePaymentInput) (*Cr
 		Amount:          amount,
 		ConfirmationURL: created.ConfirmationURL,
 	}, nil
+}
+
+func descriptionFromPurpose(purpose model.PaymentPurpose) string {
+	switch purpose {
+	case model.PaymentPurposeDemoCheckout:
+		return "Avi demo checkout"
+	case model.PaymentPurposePromoteListing:
+		return "Listing promotion"
+	case model.PaymentPurposeListingPlacement:
+		return "Listing placement"
+	case model.PaymentPurposeListingBoost:
+		return "Listing boost"
+	case model.PaymentPurposeSubscription:
+		return "Subscription"
+	default:
+		return "Payment"
+	}
 }
 
 func (s *service) HandleProviderEvent(ctx context.Context, providerType model.PaymentProvider, payload []byte) error {

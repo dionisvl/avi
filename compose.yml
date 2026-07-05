@@ -104,6 +104,32 @@ services:
       - "traefik.enable=true"
       - "traefik.http.services.fe-admin.loadbalancer.server.port=80"
 
+  fe-nextjs:
+    build:
+      context: ./fe-nextjs
+      dockerfile: Dockerfile
+    expose:
+      - "3000"
+    networks:
+      - avi
+    restart: unless-stopped
+    environment:
+      - API_INTERNAL_URL=${API_INTERNAL_URL:-http://api:8080}
+    depends_on:
+      api:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   db:
     image: postgres:18.3-alpine
     command: postgres -c shared_buffers=256MB

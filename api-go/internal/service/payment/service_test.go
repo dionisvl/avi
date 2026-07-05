@@ -277,6 +277,46 @@ func TestService_CreatePayment_PromoteListingCreatesProviderPayment(t *testing.T
 	assert.Equal(t, expectedCreated.ProviderPaymentID, fakeRepo.lastSetProviderCreated.ProviderPaymentID)
 }
 
+func TestService_CreatePayment_DemoCheckoutAllowsNonOwner(t *testing.T) {
+	ctx := context.Background()
+	userID := uuid.New()
+	sellerID := uuid.New()
+	itemID := uuid.New()
+
+	fakeRepo := newFakeRepository()
+	expectedCreated := &provider.CreatedPayment{
+		ProviderPaymentID: "yoo-" + uuid.New().String(),
+		Status:            model.PaymentStatusPending,
+		ConfirmationURL:   "https://yookassa.ru/confirm",
+		Metadata:          map[string]any{},
+	}
+	fakeProvider := &fakeProvider{created: expectedCreated}
+
+	svc := payment.New(
+		fakeRepo,
+		fakeProvider,
+		&fakeItemReader{sellerID: sellerID},
+		&fakeUserReader{},
+		10000,
+		"RUB",
+		slog.Default(),
+	)
+
+	result, err := svc.CreatePayment(ctx, payment.CreatePaymentInput{
+		UserID:    userID,
+		Purpose:   model.PaymentPurposeDemoCheckout,
+		SubjectID: itemID,
+		ReturnURL: "https://example.com/thank-you",
+	})
+
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	assert.Equal(t, expectedCreated.ConfirmationURL, result.ConfirmationURL)
+	assert.Equal(t, model.PaymentPurposeDemoCheckout, fakeRepo.lastCreatedPayment.Purpose)
+	assert.Equal(t, model.PaymentPurposeDemoCheckout, fakeProvider.lastIn.Purpose)
+	assert.Equal(t, "Avi demo checkout", fakeProvider.lastIn.Description)
+}
+
 func TestService_CreatePayment_NoBuyerEmailIsRejected(t *testing.T) {
 	ctx := context.Background()
 	userID := uuid.New()

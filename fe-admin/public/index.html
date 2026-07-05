@@ -90,49 +90,55 @@
                 </div>
             </div>
 
-            <div x-show="isAuthenticated">
-                <nav class="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4 sticky top-0 z-10 shadow-sm overflow-x-auto">
-                    <span class="text-blue-600 font-bold text-lg mr-2 whitespace-nowrap">Classifieds C2C Demo</span>
-                    <button @click="goToItems()"
-                            :class="isItemMode() ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-gray-900'"
-                            class="text-sm whitespace-nowrap"
-                            data-testid="nav-items">Items</button>
-                    <button @click="goToFavorites()"
-                            :class="mode === MODES.FAVORITES ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-gray-900'"
-                            class="text-sm whitespace-nowrap"
-                            data-testid="nav-favorites">Favorites</button>
-                    <button @click="goToChat()"
-                            :class="mode === MODES.CHAT ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-gray-900'"
-                            class="text-sm whitespace-nowrap"
-                            data-testid="nav-chat">Chat</button>
-                    <button @click="goToProfile()"
-                            :class="mode === MODES.PROFILE ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-gray-900'"
-                            class="text-sm whitespace-nowrap"
-                            data-testid="nav-profile">Profile</button>
-                    <button @click="goToContact()"
-                            :class="mode === MODES.CONTACT ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-gray-900'"
-                            class="text-sm whitespace-nowrap"
-                            data-testid="nav-contact">Contact</button>
-                    <div class="flex items-center rounded-md border border-gray-200 bg-gray-50 p-0.5 shrink-0" data-testid="locale-switcher">
+            <div x-show="isAuthenticated" class="min-h-screen lg:flex">
+                <aside class="z-10 flex flex-col bg-white border-b border-gray-200 px-4 py-4 shadow-sm lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r lg:px-5 lg:py-5">
+                    <div class="mb-5">
+                        <span class="block text-blue-600 font-bold text-lg leading-tight">Classifieds C2C Demo</span>
+                        <span class="mt-1 block text-xs text-gray-400" x-text="me.email"></span>
+                    </div>
+
+                    <nav class="flex flex-col gap-1" aria-label="Primary navigation">
+                        <button @click="goToItems()"
+                                :class="isItemMode() ? 'bg-blue-50 text-blue-700 border-blue-100 font-semibold' : 'text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-900'"
+                                class="w-full rounded-md border px-3 py-2 text-left text-sm transition-colors"
+                                data-testid="nav-items">Items</button>
+                        <button @click="goToFavorites()"
+                                :class="mode === MODES.FAVORITES ? 'bg-blue-50 text-blue-700 border-blue-100 font-semibold' : 'text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-900'"
+                                class="w-full rounded-md border px-3 py-2 text-left text-sm transition-colors"
+                                data-testid="nav-favorites">Favorites</button>
+                        <button @click="goToChat()"
+                                :class="mode === MODES.CHAT ? 'bg-blue-50 text-blue-700 border-blue-100 font-semibold' : 'text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-900'"
+                                class="w-full rounded-md border px-3 py-2 text-left text-sm transition-colors"
+                                data-testid="nav-chat">Chat</button>
+                        <button @click="goToProfile()"
+                                :class="mode === MODES.PROFILE ? 'bg-blue-50 text-blue-700 border-blue-100 font-semibold' : 'text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-900'"
+                                class="w-full rounded-md border px-3 py-2 text-left text-sm transition-colors"
+                                data-testid="nav-profile">Profile</button>
+                        <button @click="goToContact()"
+                                :class="mode === MODES.CONTACT ? 'bg-blue-50 text-blue-700 border-blue-100 font-semibold' : 'text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-900'"
+                                class="w-full rounded-md border px-3 py-2 text-left text-sm transition-colors"
+                                data-testid="nav-contact">Contact</button>
+                    </nav>
+
+                    <div class="mt-5 flex items-center rounded-md border border-gray-200 bg-gray-50 p-0.5" data-testid="locale-switcher">
                         <button @click="setLocale('en')"
                                 :class="locale === 'en' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-800'"
-                                class="px-2 py-1 rounded text-xs font-medium"
+                                class="flex-1 px-2 py-1 rounded text-xs font-medium"
                                 data-testid="locale-en">EN</button>
                         <button @click="setLocale('ru')"
                                 :class="locale === 'ru' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-800'"
-                                class="px-2 py-1 rounded text-xs font-medium"
+                                class="flex-1 px-2 py-1 rounded text-xs font-medium"
                                 data-testid="locale-ru">RU</button>
                     </div>
-                    <div class="ml-auto flex items-center gap-3">
-                        <span class="text-xs text-gray-400 whitespace-nowrap" x-text="me.email"></span>
-                        <button @click="handleLogout"
-                                data-testid="nav-logout"
-                                class="px-3 py-1.5 bg-red-600 text-white rounded-md text-xs font-medium hover:bg-red-700">
-                            Logout
-                        </button>
-                    </div>
-                </nav>
 
+                    <button @click="handleLogout"
+                            data-testid="nav-logout"
+                            class="mt-5 px-3 py-2 bg-red-600 text-white rounded-md text-xs font-medium hover:bg-red-700 lg:mt-auto">
+                        Logout
+                    </button>
+                </aside>
+
+                <main class="min-w-0 flex-1">
                 <div x-show="errorMessage && !isItemFormMode()"
                      x-text="errorMessage"
                      class="bg-red-50 text-red-800 p-3 border-b border-red-200 text-sm text-center"></div>
@@ -824,6 +830,7 @@
                         </button>
                     </div>
                 </div>
+                </main>
             </div>
         </div>
     </template>

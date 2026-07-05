@@ -1,0 +1,283 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+/*
+  ---break---
+*/
+@custom-variant dark (&:is(.dark *));
+
+/*
+  Avi Design System v0.1 — tokens from docs/design/design manual _local.md.
+  Tailwind v4: tokens live here in @theme (no tailwind.config.js).
+  Semantic names are exposed so components use `bg-surface`, `text-secondary`,
+  `rounded-card`, `shadow-card`, etc. instead of raw hex.
+*/
+@theme {
+  /* Brand */
+  --color-primary: #5b45f5;
+  --color-primary-hover: #4934d9;
+
+  /* Surfaces */
+  --color-background: #fbfaff;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f5f4fb;
+
+  /* Text */
+  --color-text-primary: #171725;
+  --color-text-secondary: #626985;
+  --color-text-muted: #8d94af;
+
+  /* Lines */
+  --color-border: #e7e6f1;
+
+  /* Status */
+  --color-success: #22c55e;
+  --color-danger: #ff5c7a;
+  --color-info: #3b82f6;
+  --color-warning: #f59e0b;
+
+  /* Promo block backgrounds */
+  --color-promo-home: #ddf7f2;
+  --color-promo-tech: #ece8ff;
+  --color-promo-travel: #fff0e6;
+
+  /* Typography — Inter loaded via next/font in layout.tsx */
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Radii */
+  --radius-control: 16px;
+  --radius-card: 16px;
+  --radius-search: 18px;
+  --radius-promo: 16px;
+  --radius-container: 22px;
+
+  /* Shadows — soft, almost invisible */
+  --shadow-card: 0 8px 24px rgba(44, 42, 84, 0.06);
+  --shadow-card-hover: 0 14px 34px rgba(44, 42, 84, 0.12);
+
+  /* Layout */
+  --container-max: 1640px;
+  /* Note: shadcn semantic color utilities (bg-primary, bg-muted, border-border,
+     etc.) are provided by the @theme inline block below, mapped to the Avi
+     palette in :root. Avi-specific names (bg-surface, text-secondary,
+     rounded-card, shadow-card…) come from the tokens above. */
+}
+
+/* Base element defaults */
+html {
+  color: var(--color-text-primary);
+  background: var(--color-background);
+  font-family: var(--font-sans);
+  /* Reserve the scrollbar gutter so centered content doesn't shift horizontally
+     when navigating between short (no scrollbar) and tall (scrollbar) pages. */
+  scrollbar-gutter: stable;
+}
+
+body {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(91, 69, 245, 0.07), transparent 34rem),
+    linear-gradient(154deg, #ffffff 0%, #ffffff 30%, #faf8ff 64%, #f7f3ff 100%);
+}
+
+/* Text size/weight scale from the manual, exposed as utilities. */
+@layer components {
+  .text-h1 {
+    font-size: 34px;
+    line-height: 42px;
+    font-weight: 800;
+  }
+  .text-h2 {
+    font-size: 22px;
+    line-height: 30px;
+    font-weight: 700;
+  }
+  .text-section {
+    font-size: 19px;
+    line-height: 26px;
+    font-weight: 800;
+  }
+  .text-card-title {
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 700;
+  }
+  .text-price {
+    font-size: 15px;
+    line-height: 19px;
+    font-weight: 800;
+  }
+  .text-body {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+  }
+  .text-meta {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
+  }
+  .text-button {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+  }
+}
+
+/* Centered page container matching the design container width. */
+@utility container-avi {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  @media (min-width: 1024px) {
+    padding-inline: 2rem;
+  }
+}
+
+/* Hide the scrollbar on horizontal scroll rows (category chips, promo carousel)
+   while keeping the content scrollable. */
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+/*
+  ---break---
+*/
+@theme inline {
+  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+/*
+  ---break---
+*/
+/*
+  shadcn semantic vars mapped to the Avi brand palette (design manual v0.1).
+  These drive shadcn/ui components (button, input, badge, etc.) so they render
+  in-brand. Kept as hex to match the token source; oklch not needed.
+*/
+:root {
+  --background: #f8fafc;
+  --foreground: #151722;
+  --card: #ffffff;
+  --card-foreground: #151722;
+  --popover: #ffffff;
+  --popover-foreground: #151722;
+  --primary: #5b45f5;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f6fb;
+  --secondary-foreground: #151722;
+  --muted: #f3f6fb;
+  --muted-foreground: #6b7280;
+  --accent: #f0ecff;
+  --accent-foreground: #4934d9;
+  --destructive: #ff5c7a;
+  --border: #e7eaf3;
+  --input: #e7eaf3;
+  --ring: #5b45f5;
+  --chart-1: #5b45f5;
+  --chart-2: #3b82f6;
+  --chart-3: #22c55e;
+  --chart-4: #f59e0b;
+  --chart-5: #ff5c7a;
+  --radius: 0.75rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #151722;
+  --sidebar-primary: #5b45f5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f3f6fb;
+  --sidebar-accent-foreground: #151722;
+  --sidebar-border: #e7eaf3;
+  --sidebar-ring: #5b45f5;
+}
+/*
+  ---break---
+*/
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+/*
+  ---break---
+*/
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
