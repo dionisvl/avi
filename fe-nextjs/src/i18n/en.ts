@@ -1,7 +1,6 @@
 /**
- * English base dictionary. This is the source of truth for UI copy.
- * `ru.ts` mirrors these keys but is intentionally left untranslated for now —
- * only the i18n structure is being laid down (no real translations yet).
+ * English base dictionary. This is the source of truth for UI copy and the
+ * `Dictionary` type. `ru.ts` mirrors these keys with Russian translations.
  */
 export const en = {
   common: {

@@ -54,7 +54,7 @@ export async function createItem(req: CreateItemRequest): Promise<CreateItemResp
   });
 
   if (error) {
-    throw new Error(`Failed to create listing: ${error.toString()}`);
+    throw new Error(error.detail || error.title || "Failed to create listing");
   }
 
   if (!data?.data) {

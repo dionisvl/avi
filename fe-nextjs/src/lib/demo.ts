@@ -30,7 +30,10 @@ export function getDemoUsers(): DemoUser[] {
     const parsed = JSON.parse(process.env.NEXT_PUBLIC_DEMO_USERS ?? "[]");
     if (!Array.isArray(parsed)) return [];
     return parsed.filter(
-      (u): u is DemoUser => typeof u?.email === "string" && typeof u?.password === "string",
+      (u): u is DemoUser =>
+        typeof u?.email === "string" &&
+        typeof u?.password === "string" &&
+        typeof u?.label === "string",
     );
   } catch {
     return [];
