@@ -235,7 +235,7 @@ services:
 
 secrets:
   dozzle_users:
-    file: ./Tools/dozzle_users.yml
+    file: ./tools/dozzle_users.yml
 
 networks:
   avi:

@@ -85,7 +85,7 @@ services:
     environment:
       - DOZZLE_AUTH_PROVIDER=simple
     volumes:
-      - ./Tools/dozzle_users.yml:/data/users.yml:ro
+      - ./tools/dozzle_users.yml:/data/users.yml:ro
     networks:
       - avi
     labels:

@@ -60,12 +60,12 @@ sh:
 
 # DEPLOY to prod
 deploy-api:
-	ssh -p $(DEPLOY_PORT) $(DEPLOY_USER)@$(DEPLOY_HOST) "cd /home/infra && git pull && docker compose -f compose.yml -f compose.override.prod.yml up -d --build --no-deps api"
+	ssh -p $(DEPLOY_PORT) $(DEPLOY_USER)@$(DEPLOY_HOST) "cd /home/avi && git pull && docker compose -f compose.yml -f compose.override.prod.yml up -d --build --no-deps api"
 
 deploy-fe: fe-admin-build
-	ssh -p $(DEPLOY_PORT) $(DEPLOY_USER)@$(DEPLOY_HOST) "cd /home/infra && git pull && mkdir -p fe-admin/dist"
-	rsync -az --delete --exclude env.js -e "ssh -p $(DEPLOY_PORT)" fe-admin/dist/ $(DEPLOY_USER)@$(DEPLOY_HOST):/home/infra/fe-admin/dist/
-	ssh -p $(DEPLOY_PORT) $(DEPLOY_USER)@$(DEPLOY_HOST) "cd /home/infra && docker compose -f compose.yml -f compose.override.prod.yml up -d --no-deps fe-admin"
+	ssh -p $(DEPLOY_PORT) $(DEPLOY_USER)@$(DEPLOY_HOST) "cd /home/avi && git pull && mkdir -p fe-admin/dist"
+	rsync -az --delete --exclude env.js -e "ssh -p $(DEPLOY_PORT)" fe-admin/dist/ $(DEPLOY_USER)@$(DEPLOY_HOST):/home/avi/fe-admin/dist/
+	ssh -p $(DEPLOY_PORT) $(DEPLOY_USER)@$(DEPLOY_HOST) "cd /home/avi && docker compose -f compose.yml -f compose.override.prod.yml up -d --no-deps fe-admin"
 
 deploy-all:
 	$(MAKE) deploy-api

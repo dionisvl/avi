@@ -129,7 +129,7 @@ services:
       - DOZZLE_AUTH_PROVIDER=simple
     volumes:
       - /run/user/${DOCKER_UID:-1000}/docker.sock:/var/run/docker.sock:ro
-      - ./Tools/dozzle_users.yml:/data/users.yml:ro
+      - ./tools/dozzle_users.yml:/data/users.yml:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.dozzle.loadbalancer.server.port=8080"

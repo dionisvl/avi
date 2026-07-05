@@ -5,6 +5,10 @@
 
 Demo classifieds marketplace inspired by popular C2C listing platforms. Multi-service infrastructure with Traefik, a Go API, and a frontend.
 
+<p align="center">
+  <img src="https://global.s3.cloud.ru/my-files/avi-design-1.webp" alt="Avi marketplace interface preview" width="100%">
+</p>
+
 ---
 
 > This project is not affiliated with Avito, OLX, or any other classifieds platform. All trademarks belong to their respective owners.
