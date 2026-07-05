@@ -121,16 +121,13 @@ make dev
 
 - Traefik v3.6 - Reverse proxy
 - API (Go) - Backend API
-- Frontend (Nginx) - SPA
-- PostgreSQL - Database (check actual port in .env)
+- Frontend NextJS
+- Frontend Admin panel - SPA
+- PostgreSQL
 - Dozzle - Log viewer
 - Netdata - Metrics monitoring
 - Mailpit - Test SMTP
-
-## Database
-
-- Dev: `postgres://avi:avi@127.0.0.1:54444/avi` (port published via `compose.override.dev.yml`)
-- Prod: not published externally — connect via SSH tunnel or from within the docker network
+- Resend - Emails on prod
 
 ## Development
 
