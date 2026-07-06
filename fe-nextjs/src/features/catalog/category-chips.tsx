@@ -81,7 +81,7 @@ export function CategoryChips() {
   if (isLoading) {
     return (
       <div>
-        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide md:overflow-visible">
+        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide 2xl:overflow-visible">
           {Array.from({ length: 6 }, (_, i) => `chip-${i}`).map((key) => (
             <CategoryChipSkeleton key={key} />
           ))}
@@ -92,7 +92,7 @@ export function CategoryChips() {
 
   return (
     <div>
-      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide md:overflow-visible">
+      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide 2xl:overflow-visible">
         {categories.map((category) => (
           <CategoryChip key={category.id} category={category} />
         ))}

@@ -1,6 +1,17 @@
 "use client";
 
-import { ChevronDown, Heart, MapPin, Menu, MessageCircle, User, Zap } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Heart,
+  MapPin,
+  Menu,
+  MessageCircle,
+  User,
+  Zap,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,6 +36,8 @@ export function Header() {
   const router = useRouter();
   const { data: cities = [] } = useCities();
   const [selectedCity, setSelectedCity] = useState(cities.length > 0 ? cities[0] : null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCityMenuOpen, setIsCityMenuOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
 
   const handleLogout = async () => {
@@ -47,7 +60,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl">
-      <div className="container-avi flex h-[72px] items-center justify-between gap-5">
+      <div className="container-avi flex h-[72px] items-center justify-between gap-2 sm:gap-5">
         <Link href="/" className="flex shrink-0 items-center gap-3">
           <div className="flex size-8 rotate-12 items-center justify-center rounded-[10px] bg-primary">
             <Zap className="size-5 -rotate-12 text-white" />
@@ -63,7 +76,7 @@ export function Header() {
           )}
         </Link>
 
-        <nav className="hidden items-center gap-9 lg:flex">
+        <nav className="hidden items-center gap-9 2xl:flex">
           {navLinks.map((link) => (
             <Link
               key={link.label}
@@ -75,13 +88,13 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden lg:block ml-auto" />
+        <div className="ml-auto hidden 2xl:block" />
 
-        <div className="hidden lg:block">
+        <div className="hidden 2xl:block">
           <LanguageSwitcher />
         </div>
 
-        <div className="hidden lg:block">
+        <div className="hidden 2xl:block">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-10 gap-1.5 px-2 text-primary hover:bg-primary/5">
@@ -100,7 +113,7 @@ export function Header() {
           </DropdownMenu>
         </div>
 
-        <div className="hidden items-center gap-4 lg:flex">
+        <div className="hidden items-center gap-4 2xl:flex">
           <Link href="/favorites">
             <Button variant="ghost" size="icon" className="size-10" aria-label={t.header.favorites}>
               <Heart className="size-5 text-text-primary" />
@@ -113,13 +126,13 @@ export function Header() {
           </Link>
         </div>
 
-        <Link href="/items/new" className="hidden lg:block">
+        <Link href="/items/new" className="hidden 2xl:block">
           <Button className="h-11 rounded-[12px] px-6 text-[13px] font-bold shadow-[0_10px_24px_rgba(91,69,245,0.24)]">
             {t.header.postListing}
           </Button>
         </Link>
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden items-center gap-2 2xl:flex">
           {isAuthenticated && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -150,117 +163,161 @@ export function Header() {
           )}
         </div>
 
-        <div className="flex items-center gap-2 lg:hidden">
-          <LanguageSwitcher className="h-9 min-w-14" />
-          <Link href="/items/new" className="block sm:hidden">
-            <Button variant="default" size="sm">
-              {t.header.postListing}
-            </Button>
-          </Link>
+        <div className="flex items-center gap-2 2xl:hidden">
+          <LanguageSwitcher className="h-9 min-w-12" />
         </div>
 
-        {/* Mobile Hamburger Menu */}
-        <Sheet>
+        <Sheet
+          modal={false}
+          open={isMenuOpen}
+          onOpenChange={(open) => {
+            setIsMenuOpen(open);
+            if (!open) {
+              setIsCityMenuOpen(false);
+            }
+          }}
+        >
           <SheetTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              className="ml-2 lg:hidden"
+              className="ml-0 size-10 rounded-[14px] border-border bg-white/92 text-text-primary shadow-[0_8px_22px_rgba(44,42,84,0.08)] hover:border-primary/30 hover:bg-primary/5 hover:text-primary 2xl:hidden"
               aria-label={t.header.menu}
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="size-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-full sm:w-80">
+          <SheetContent side="right" className="w-full p-0 sm:w-[380px]">
             <SheetHeader>
               <SheetTitle className="sr-only">{t.header.menu}</SheetTitle>
             </SheetHeader>
-            <div className="flex flex-col gap-6 pt-8">
-              {/* Mobile CTA */}
-              <Link href="/items/new" className="block">
-                <Button variant="default" className="w-full">
-                  {t.header.postListing}
-                </Button>
-              </Link>
+            {isCityMenuOpen ? (
+              <div className="flex min-h-0 flex-1 flex-col px-5 pb-5 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsCityMenuOpen(false)}
+                  className="mb-4 inline-flex w-fit items-center gap-2 rounded-lg px-1 py-2 text-sm font-semibold text-text-secondary transition-colors hover:text-primary"
+                >
+                  <ArrowLeft className="size-4" />
+                  {t.header.menu}
+                </button>
+                <div className="mb-4">
+                  <h2 className="text-section text-text-primary">{t.header.selectCity}</h2>
+                  <p className="mt-1 text-meta text-text-secondary">{cityLabel}</p>
+                </div>
+                <div className="min-h-0 flex-1 overflow-y-scroll pr-2 [scrollbar-gutter:stable]">
+                  <div className="space-y-2 pb-2">
+                    {cities.map((city) => {
+                      const name = city.names?.[locale] || city.names?.en || city.slug;
+                      const isSelected = selectedCity?.id === city.id;
 
-              {/* City Selector (mobile) */}
-              <div>
-                <h3 className="text-meta text-text-secondary mb-3">{t.header.selectCity}</h3>
-                <div className="space-y-2">
-                  {cities.map((city) => (
-                    <button
-                      type="button"
-                      key={city.id}
-                      onClick={() => setSelectedCity(city)}
-                      className={cn(
-                        "w-full text-left px-3 py-2 rounded-control text-body transition-colors",
-                        selectedCity?.id === city.id
-                          ? "bg-primary text-primary-foreground"
-                          : "hover:bg-surface-soft text-text-primary",
-                      )}
-                    >
-                      {city.names?.[locale] || city.names?.en || city.slug}
-                    </button>
-                  ))}
+                      return (
+                        <button
+                          type="button"
+                          key={city.id}
+                          onClick={() => {
+                            setSelectedCity(city);
+                            setIsCityMenuOpen(false);
+                          }}
+                          className={cn(
+                            "flex w-full items-center justify-between gap-3 rounded-control px-3 py-3 text-left text-body transition-colors",
+                            isSelected
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-surface-soft text-text-primary hover:bg-primary/5 hover:text-primary",
+                          )}
+                        >
+                          <span className="min-w-0 truncate">{name}</span>
+                          {isSelected && <Check className="size-4 shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
+            ) : (
+              <div className="flex flex-col gap-6 px-5 pb-6 pt-12">
+                <Link href="/items/new" className="block">
+                  <Button variant="default" className="w-full">
+                    {t.header.postListing}
+                  </Button>
+                </Link>
 
-              {/* Mobile Nav Links */}
-              <nav className="space-y-3 border-t border-border pt-6">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    className="block text-body text-text-primary hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </nav>
+                <button
+                  type="button"
+                  onClick={() => setIsCityMenuOpen(true)}
+                  className="flex w-full items-center justify-between gap-3 rounded-control border border-border bg-surface-soft px-3 py-3 text-left transition-colors hover:border-primary/30 hover:bg-primary/5"
+                >
+                  <span className="flex min-w-0 items-center gap-3">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white text-primary shadow-card">
+                      <MapPin className="size-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-meta font-semibold text-text-secondary">
+                        {t.header.selectCity}
+                      </span>
+                      <span className="block truncate text-body font-semibold text-text-primary">
+                        {cityLabel}
+                      </span>
+                    </span>
+                  </span>
+                  <ChevronRight className="size-4 shrink-0 text-text-muted" />
+                </button>
 
-              {/* Profile (mobile) */}
-              <div className="border-t border-border pt-6">
-                {isAuthenticated && user ? (
-                  <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-surface-soft">
-                        <User className="w-4 h-4" />
+                <nav className="space-y-3 border-t border-border pt-6">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.label}
+                      href={link.href}
+                      className="block text-body text-text-primary transition-colors hover:text-primary"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+
+                <div className="border-t border-border pt-6">
+                  {isAuthenticated && user ? (
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-8 items-center justify-center rounded-full bg-surface-soft">
+                          <User className="size-4" />
+                        </div>
+                        <span className="text-body text-text-primary break-all">{user.email}</span>
                       </div>
-                      <span className="text-body text-text-primary break-all">{user.email}</span>
+                      <Link
+                        href="/profile"
+                        className="text-body text-text-primary transition-colors hover:text-primary"
+                      >
+                        {t.header.profile}
+                      </Link>
+                      <Link
+                        href="/profile/items"
+                        className="text-body text-text-primary transition-colors hover:text-primary"
+                      >
+                        {t.header.myListings}
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="w-full text-left text-body text-destructive transition-colors hover:text-destructive/80"
+                      >
+                        {t.auth.logOut}
+                      </button>
                     </div>
+                  ) : (
                     <Link
-                      href="/profile"
-                      className="text-body text-text-primary transition-colors hover:text-primary"
+                      href="/login"
+                      className="flex w-full items-center gap-3 text-body text-text-primary transition-colors hover:text-primary"
                     >
-                      {t.header.profile}
+                      <div className="flex size-8 items-center justify-center rounded-full bg-surface-soft">
+                        <User className="size-4" />
+                      </div>
+                      <span>{t.auth.logIn}</span>
                     </Link>
-                    <Link
-                      href="/profile/items"
-                      className="text-body text-text-primary transition-colors hover:text-primary"
-                    >
-                      {t.header.myListings}
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={handleLogout}
-                      className="w-full text-left text-body text-destructive hover:text-destructive/80 transition-colors"
-                    >
-                      {t.auth.logOut}
-                    </button>
-                  </div>
-                ) : (
-                  <Link
-                    href="/login"
-                    className="flex items-center gap-3 w-full text-body text-text-primary hover:text-primary transition-colors"
-                  >
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-surface-soft">
-                      <User className="w-4 h-4" />
-                    </div>
-                    <span>{t.auth.logIn}</span>
-                  </Link>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </SheetContent>
         </Sheet>
       </div>

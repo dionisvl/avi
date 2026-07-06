@@ -159,7 +159,7 @@ export default async function ItemsPage({ searchParams }: ItemsPageProps) {
                 "grid gap-4",
                 view === "list"
                   ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                  : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+                  : "grid-cols-1 min-[380px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
               )}
             >
               {items.map((item) => (

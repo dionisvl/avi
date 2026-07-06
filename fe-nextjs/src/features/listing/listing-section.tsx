@@ -27,14 +27,14 @@ interface ListingSectionProps {
 
 // Full, static responsive class strings — Tailwind must see these literally.
 const GRID_VARIANTS: Record<string, string> = {
-  "2-3-6": "grid-cols-2 md:grid-cols-3 lg:grid-cols-6",
-  "2-4-8": "grid-cols-2 md:grid-cols-4 lg:grid-cols-8",
+  "2-3-6": "grid-cols-1 min-[380px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-6",
+  "2-4-8": "grid-cols-1 min-[380px]:grid-cols-2 md:grid-cols-4 lg:grid-cols-8",
 };
 
 /** Helper to build responsive grid classes from column config. */
 function getGridClasses(columns: { base: number; md: number; lg: number }): string {
   const key = `${columns.base}-${columns.md}-${columns.lg}`;
-  return GRID_VARIANTS[key] ?? "grid-cols-2 md:grid-cols-4 lg:grid-cols-6";
+  return GRID_VARIANTS[key] ?? "grid-cols-1 min-[380px]:grid-cols-2 md:grid-cols-4 lg:grid-cols-6";
 }
 
 export function ListingSection({
